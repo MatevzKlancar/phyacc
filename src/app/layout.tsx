@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Phy/Acc - Physical Acceleration",
   description:
-    "Explore the intersection of physical systems and AI with Phy/Acc.",
+    "Explore the intersection of physical systems and AI with Phy/Acc",
   icons: {
     icon: "/faviconPhyAcc.png",
   },
