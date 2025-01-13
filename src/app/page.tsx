@@ -1,101 +1,475 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import React, { useState } from "react";
+import { MenuIcon, X, Github, ExternalLink, ChevronDown } from "lucide-react";
+
+const ProjectWebsite = () => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    element?.scrollIntoView({ behavior: "smooth" });
+    setIsMenuOpen(false);
+  };
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    <div className="min-h-screen bg-gray-50">
+      {/* Navigation */}
+      <nav className="fixed top-0 w-full bg-white shadow-sm z-50">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center">
+              <span className="text-xl font-bold text-gray-800">Phy/Acc</span>
+            </div>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center space-x-8">
+              <button
+                onClick={() => scrollToSection("projects")}
+                className="text-gray-600 hover:text-gray-900"
+              >
+                Projects
+              </button>
+              <button
+                onClick={() => scrollToSection("features")}
+                className="text-gray-600 hover:text-gray-900"
+              >
+                Features
+              </button>
+              <button
+                onClick={() => scrollToSection("roadmap")}
+                className="text-gray-600 hover:text-gray-900"
+              >
+                Roadmap
+              </button>
+              <a
+                href="https://github.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-600 hover:text-gray-900"
+              >
+                <Github className="w-5 h-5" />
+              </a>
+            </div>
+
+            {/* Mobile menu button */}
+            <div className="md:hidden">
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="text-gray-600 hover:text-gray-900"
+              >
+                {isMenuOpen ? (
+                  <X className="w-6 h-6" />
+                ) : (
+                  <MenuIcon className="w-6 h-6" />
+                )}
+              </button>
+            </div>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+
+        {/* Mobile Navigation */}
+        {isMenuOpen && (
+          <div className="md:hidden">
+            <div className="px-2 pt-2 pb-3 space-y-1 bg-white">
+              <button
+                onClick={() => scrollToSection("projects")}
+                className="block px-3 py-2 text-gray-600 hover:text-gray-900 w-full text-left"
+              >
+                Projects
+              </button>
+              <button
+                onClick={() => scrollToSection("features")}
+                className="block px-3 py-2 text-gray-600 hover:text-gray-900 w-full text-left"
+              >
+                Features
+              </button>
+              <button
+                onClick={() => scrollToSection("roadmap")}
+                className="block px-3 py-2 text-gray-600 hover:text-gray-900 w-full text-left"
+              >
+                Roadmap
+              </button>
+            </div>
+          </div>
+        )}
+      </nav>
+
+      {/* Hero Section */}
+      <section className="pt-20 pb-16 md:pt-32 md:pb-24 bg-gray-800 relative">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center">
+            <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
+              Physical Accelerationism
+            </h1>
+            <p className="text-lg text-white/90 mb-8 max-w-2xl mx-auto">
+              Physical AI, or Generative Physical AI, refers to the use of
+              artificial intelligence to simulate and understand physical
+              systems and processes. It combines the principles of physics with
+              advanced computational techniques to create models that can
+              predict how physical objects behave in the real world. This
+              technology can be applied in various fields, including robotics,
+              engineering, and environmental science, enabling more efficient
+              designs and solutions by accurately modeling complex physical
+              interactions.
+            </p>
+            <div className="flex justify-center mb-8">
+              <img
+                src="/robotai2.png"
+                alt="Robot AI"
+                className="w-full h-auto max-w-md"
+              />
+            </div>
+            <div className="flex justify-center space-x-4">
+              <button className="bg-white text-blue-600 px-6 py-2 rounded-lg font-medium hover:bg-blue-50 transition-colors">
+                Get Started
+              </button>
+              <button className="border border-white text-white px-6 py-2 rounded-lg font-medium hover:bg-white/10 transition-colors">
+                Learn More
+              </button>
+            </div>
+          </div>
+        </div>
+        <div className="text-center mt-12">
+          <ChevronDown className="w-8 h-8 text-white/80 mx-auto animate-bounce" />
+        </div>
+      </section>
+
+      {/* Featured Projects Section */}
+      <section id="projects" className="py-16 md:py-24">
+        <div className="max-w-7xl mx-auto px-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-black mb-12 text-center">
+            Featured Projects
+          </h2>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {/* Phy/Acc Project Card */}
+            <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+              <div
+                className="h-48 bg-gray-200"
+                style={{
+                  backgroundImage: "url('/phyacc.png')",
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                }}
+              ></div>
+              <div className="p-6">
+                <h3 className="text-xl font-semibold mb-2 text-black">
+                  Phy/Acc
+                </h3>
+                <p className="text-gray-600 mb-4">
+                  We are a community-run project that helps with the development
+                  and funding of the new era of AI, which is Physical AI. Our
+                  mission is to advance the understanding and application of AI
+                  in physical systems, enabling innovative solutions across
+                  various fields.
+                </p>
+
+                <div className="flex justify-between items-center">
+                  <a
+                    href="https://x.com/i/communities/1877722245616861227"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:text-blue-700 flex items-center"
+                  >
+                    Learn more <ExternalLink className="w-4 h-4 ml-1" />
+                  </a>
+                  <a href="#" className="text-gray-600 hover:text-gray-900">
+                    <Github className="w-5 h-5" />
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            {/* AntroOne Project Card */}
+            <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+              <div
+                className="h-48 bg-gray-200"
+                style={{
+                  backgroundImage: "url('/antroOne.png')",
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                }}
+              ></div>
+              <div className="p-6">
+                <h3 className="text-xl font-semibold mb-2 text-black">
+                  AntroOne
+                </h3>
+                <p className="text-gray-600 mb-4">
+                  STAGE 2 of an experiment on human-robot interaction based on
+                  heavily modified InMoov.
+                </p>
+                <div className="flex justify-between items-center">
+                  <a
+                    href="https://x.com/AntroOne"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:text-blue-700 flex items-center"
+                  >
+                    Learn more <ExternalLink className="w-4 h-4 ml-1" />
+                  </a>
+                  <a href="#" className="text-gray-600 hover:text-gray-900">
+                    <Github className="w-5 h-5" />
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            {/* Pythia Project Card */}
+            <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+              <div
+                className="h-48 bg-gray-200"
+                style={{
+                  backgroundImage: "url('/pythia.png')",
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                }}
+              ></div>
+              <div className="p-6">
+                <h3 className="text-xl font-semibold mb-2 text-black">
+                  Pythia
+                </h3>
+                <p className="text-gray-600 mb-4">
+                  Bridging neurobiology, AI & future. Licensed under the Animal
+                  Ethics Committee Approval Certificate. Creator of Pythia.
+                </p>
+                <div className="flex justify-between items-center">
+                  <a
+                    href="https://x.com/neirylab"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:text-blue-700 flex items-center"
+                  >
+                    Learn more <ExternalLink className="w-4 h-4 ml-1" />
+                  </a>
+                  <a href="#" className="text-gray-600 hover:text-gray-900">
+                    <Github className="w-5 h-5" />
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            {/* Add more project cards here in the future */}
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section id="features" className="py-16 md:py-24 bg-gray-100">
+        <div className="max-w-7xl mx-auto px-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-black mb-12 text-center">
+            Features
+          </h2>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="bg-white p-6 rounded-lg shadow-md">
+              <h3 className="text-xl font-semibold mb-2 text-black">
+                Join Our Community
+              </h3>
+              <p className="text-gray-600 mb-4">
+                Join our discussions on Telegram to connect with other community
+                members and stay updated on the latest developments.
+              </p>
+              <a
+                href="https://t.me/Phyacc"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:text-blue-700"
+              >
+                Join Telegram
+              </a>
+            </div>
+            <div className="bg-white p-6 rounded-lg shadow-md">
+              <h3 className="text-xl font-semibold mb-2 text-black">
+                Premium Channel for Token Holders
+              </h3>
+              <p className="text-gray-600 mb-4">
+                If you're a holder of at least 5 million tokens, you are invited
+                to our premium channel where you can get exclusive information
+                and discuss with like-minded individuals.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Roadmap Section */}
+      <section id="roadmap" className="py-16 md:py-24">
+        <div className="max-w-7xl mx-auto px-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-black mb-12 text-center">
+            Roadmap
+          </h2>
+          <div className="space-y-8">
+            <div className="relative pl-8 border-l-2 border-blue-500">
+              <div className="absolute -left-2 top-0 w-4 h-4 rounded-full bg-blue-500"></div>
+              <div className="mb-4">
+                <h3 className="text-xl font-semibold mb-2 text-black">
+                  Launch
+                </h3>
+                <p className="text-gray-600">
+                  Officially launch the Phy/Acc project, introducing our vision
+                  and goals to the community and stakeholders.
+                </p>
+              </div>
+            </div>
+            <div className="relative pl-8 border-l-2 border-blue-500">
+              <div className="absolute -left-2 top-0 w-4 h-4 rounded-full bg-blue-500"></div>
+              <div className="mb-4">
+                <h3 className="text-xl font-semibold mb-2 text-black">
+                  Network Development (Ongoing)
+                </h3>
+                <p className="text-gray-600">
+                  Continuously develop and enhance our network, focusing on
+                  building partnerships and collaborations within the industry.
+                </p>
+              </div>
+            </div>
+            <div className="relative pl-8 border-l-2 border-blue-500">
+              <div className="absolute -left-2 top-0 w-4 h-4 rounded-full bg-blue-500"></div>
+              <div className="mb-4">
+                <h3 className="text-xl font-semibold mb-2 text-black">
+                  Transition into DAO
+                </h3>
+                <p className="text-gray-600">
+                  Begin the transition to a decentralized autonomous
+                  organization (DAO), empowering the community to participate in
+                  decision-making.
+                </p>
+              </div>
+            </div>
+            <div className="relative pl-8 border-l-2 border-blue-500">
+              <div className="absolute -left-2 top-0 w-4 h-4 rounded-full bg-blue-500"></div>
+              <div className="mb-4">
+                <h3 className="text-xl font-semibold mb-2 text-black">
+                  Accelerator Program
+                </h3>
+                <p className="text-gray-600">
+                  Launch an accelerator program to support startups and projects
+                  that align with our mission, providing resources and
+                  mentorship.
+                </p>
+              </div>
+            </div>
+            <div className="relative pl-8 border-l-2 border-blue-500">
+              <div className="absolute -left-2 top-0 w-4 h-4 rounded-full bg-blue-500"></div>
+              <div className="mb-4">
+                <h3 className="text-xl font-semibold mb-2 text-black">
+                  Research Community
+                </h3>
+                <p className="text-gray-600">
+                  Foster a research community focused on advancing the field of
+                  Physical AI, encouraging collaboration and knowledge sharing.
+                </p>
+              </div>
+            </div>
+            <div className="relative pl-8 border-l-2 border-blue-500">
+              <div className="absolute -left-2 top-0 w-4 h-4 rounded-full bg-blue-500"></div>
+              <div className="mb-4">
+                <h3 className="text-xl font-semibold mb-2 text-black">
+                  Builders Fund
+                </h3>
+                <p className="text-gray-600">
+                  Establish a Builders Fund to provide financial support for
+                  innovative projects and initiatives within the Phy/Acc
+                  ecosystem.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Bottom Section */}
+      <section className="py-16 bg-gray-100">
+        <div className="max-w-7xl mx-auto px-4 text-center">
+          <h2 className="text-3xl font-bold text-black mb-6">
+            Join Our Community
+          </h2>
+          <p className="text-gray-600 mb-4">
+            Connect with other community members and stay updated on the latest
+            developments.
+          </p>
+          <a
+            href="https://x.com/i/communities/1877722245616861227"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 hover:text-blue-700"
+          >
+            Community
+          </a>
+          <div className="mt-4">
+            <a
+              href="https://t.me/Phyacc"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:text-blue-700"
+            >
+              Join Telegram
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-gray-900 text-white py-12">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div>
+              <h3 className="text-lg font-semibold mb-4">About</h3>
+              <p className="text-gray-400">
+                Our mission is to bridge the gap between Ai and real world
+              </p>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Links</h3>
+              <ul className="space-y-2">
+                <li>
+                  <a
+                    href="https://x.com/i/communities/1877722245616861227"
+                    className="text-gray-400 hover:text-white"
+                  >
+                    Community
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Contact</h3>
+              <ul className="space-y-2">
+                <li>
+                  <a href="#" className="text-gray-400 hover:text-white">
+                    Email
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="text-gray-400 hover:text-white">
+                    Twitter
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="text-gray-400 hover:text-white">
+                    Discord
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Newsletter</h3>
+              <p className="text-gray-400 mb-4">
+                Stay updated with our latest developments.
+              </p>
+              <input
+                type="email"
+                placeholder="Enter your email"
+                className="w-full px-4 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:border-blue-500"
+              />
+            </div>
+          </div>
+          <div className="mt-12 pt-8 border-t border-gray-800 text-center text-gray-400">
+            <p>&copy; Phy/Acc. All rights reserved.</p>
+          </div>
+        </div>
       </footer>
     </div>
   );
-}
+};
+
+export default ProjectWebsite;
