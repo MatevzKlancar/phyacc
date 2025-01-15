@@ -346,6 +346,49 @@ const ProjectWebsite = () => {
           </div>
         </section>
 
+        {/* Coming Soon - Funding Platform */}
+        <section className="py-16 md:py-24">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 to-cyan-500 p-8 md:p-12">
+              <div className="absolute inset-0 backdrop-blur-sm bg-white/10"></div>
+              <div className="relative z-10">
+                <div className="inline-block px-4 py-1 mb-4 rounded-full bg-white/20 backdrop-blur-md">
+                  <span className="text-white font-semibold">Coming Soon</span>
+                </div>
+                <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+                  AI Robot Project Funding Platform
+                </h2>
+                <p className="text-white/90 text-lg mb-6 max-w-2xl">
+                  We're building a revolutionary platform where innovators can
+                  showcase their AI robot projects and receive funding from our
+                  community. Be part of the future of robotics and AI.
+                </p>
+                <div className="flex flex-wrap gap-4">
+                  <div className="bg-white/10 backdrop-blur-md rounded-lg p-4 flex items-center">
+                    <div className="text-white">
+                      <div className="font-semibold">Project Funding</div>
+                      <div className="text-sm text-white/80">
+                        Support groundbreaking AI robot projects
+                      </div>
+                    </div>
+                  </div>
+                  <div className="bg-white/10 backdrop-blur-md rounded-lg p-4 flex items-center">
+                    <div className="text-white">
+                      <div className="font-semibold">Community Driven</div>
+                      <div className="text-sm text-white/80">
+                        Democratizing robot development
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {/* Abstract geometric shapes for visual interest */}
+              <div className="absolute top-0 right-0 -translate-y-1/4 translate-x-1/4 w-96 h-96 bg-cyan-400/20 rounded-full blur-3xl"></div>
+              <div className="absolute bottom-0 left-0 translate-y-1/4 -translate-x-1/4 w-96 h-96 bg-blue-400/20 rounded-full blur-3xl"></div>
+            </div>
+          </div>
+        </section>
+
         {/* Features Section */}
         <section id="features" className="py-16 md:py-24 bg-gray-100">
           <div className="max-w-7xl mx-auto px-4">
