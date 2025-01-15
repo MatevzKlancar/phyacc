@@ -1,7 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { MenuIcon, X, Github, ExternalLink, ChevronDown } from "lucide-react";
+import { motion } from "framer-motion";
+import type { Container, Engine } from "tsparticles-engine";
+import { ISourceOptions } from "tsparticles-engine";
+import Particles from "react-tsparticles";
+import { loadFull } from "tsparticles";
 
 const ProjectWebsite = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -12,8 +17,62 @@ const ProjectWebsite = () => {
     setIsMenuOpen(false);
   };
 
+  const particlesInit = useCallback(async (engine: any): Promise<void> => {
+    await loadFull(engine);
+  }, []);
+
+  const particlesLoaded = useCallback(async (container: any): Promise<void> => {
+    console.log("Particles loaded:", container);
+  }, []);
+
+  const particlesConfig: ISourceOptions = {
+    particles: {
+      number: {
+        value: 80,
+        density: { enable: true, area: 800 },
+      },
+      color: {
+        value: "#ffffff",
+      },
+      opacity: {
+        value: 0.5,
+      },
+      size: {
+        value: 3,
+      },
+      links: {
+        enable: true,
+        distance: 150,
+        color: "#ffffff",
+        opacity: 0.4,
+        width: 1,
+      },
+      move: {
+        enable: true,
+        speed: 2,
+        direction: "none" as const,
+        random: false,
+        straight: false,
+        outModes: {
+          default: "out",
+        },
+      },
+    },
+    interactivity: {
+      events: {
+        onHover: {
+          enable: true,
+          mode: "repulse",
+        },
+      },
+    },
+    background: {
+      color: "transparent",
+    },
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       {/* Navigation */}
       <nav className="fixed top-0 w-full bg-white shadow-sm z-50">
         <div className="max-w-7xl mx-auto px-4">
@@ -95,11 +154,27 @@ const ProjectWebsite = () => {
         )}
       </nav>
 
-      {/* Hero Section */}
-      <section className="pt-20 pb-16 md:pt-32 md:pb-24 bg-gray-800 relative">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center">
-            <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
+      {/* Hero Section with Particles */}
+      <section className="pt-20 pb-16 md:pt-32 md:pb-24 relative bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900">
+        <Particles
+          id="tsparticles-hero"
+          init={particlesInit}
+          loaded={particlesLoaded}
+          options={particlesConfig}
+          className="absolute inset-0"
+        />
+        <div className="max-w-7xl mx-auto px-4 relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-center"
+          >
+            <h1
+              className="text-4xl md:text-6xl font-bold text-white mb-6 
+                         bg-clip-text text-transparent bg-gradient-to-r 
+                         from-cyan-400 to-blue-500"
+            >
               Physical Accelerationism
             </h1>
             <p className="text-lg text-white/90 mb-8 max-w-2xl mx-auto">
@@ -128,254 +203,316 @@ const ProjectWebsite = () => {
                 Learn More
               </button>
             </div>
-          </div>
+          </motion.div>
         </div>
         <div className="text-center mt-12">
           <ChevronDown className="w-8 h-8 text-white/80 mx-auto animate-bounce" />
         </div>
       </section>
 
-      {/* Featured Projects Section */}
-      <section id="projects" className="py-16 md:py-24">
-        <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-3xl md:text-4xl font-bold text-black mb-12 text-center">
-            Featured Projects
-          </h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* Phy/Acc Project Card */}
-            <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+      {/* Add a wrapper div with solid background for all middle sections */}
+      <div className="relative bg-white z-10">
+        {/* Featured Projects Section */}
+        <section id="projects" className="py-16 md:py-24">
+          <div className="max-w-7xl mx-auto px-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-black mb-12 text-center">
+              Featured Projects
+            </h2>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {/* Phy/Acc Project Card */}
               <div
-                className="h-48 bg-gray-200"
-                style={{
-                  backgroundImage: "url('/phyacc.png')",
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                }}
-              ></div>
-              <div className="p-6">
-                <h3 className="text-xl font-semibold mb-2 text-black">
-                  Phy/Acc
-                </h3>
-                <p className="text-gray-600 mb-4">
-                  We are a community-run project that helps with the development
-                  and funding of the new era of AI, which is Physical AI. Our
-                  mission is to advance the understanding and application of AI
-                  in physical systems, enabling innovative solutions across
-                  various fields.
-                </p>
-
-                <div className="flex justify-between items-center">
-                  <a
-                    href="https://x.com/i/communities/1877722245616861227"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 hover:text-blue-700 flex items-center"
-                  >
-                    Learn more <ExternalLink className="w-4 h-4 ml-1" />
-                  </a>
-                  <a href="#" className="text-gray-600 hover:text-gray-900">
-                    <Github className="w-5 h-5" />
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            {/* AntroOne Project Card */}
-            <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-              <div
-                className="h-48 bg-gray-200"
-                style={{
-                  backgroundImage: "url('/antroOne.png')",
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                }}
-              ></div>
-              <div className="p-6">
-                <h3 className="text-xl font-semibold mb-2 text-black">
-                  AntroOne
-                </h3>
-                <p className="text-gray-600 mb-4">
-                  STAGE 2 of an experiment on human-robot interaction based on
-                  heavily modified InMoov.
-                </p>
-                <div className="flex justify-between items-center">
-                  <a
-                    href="https://x.com/AntroOne"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 hover:text-blue-700 flex items-center"
-                  >
-                    Learn more <ExternalLink className="w-4 h-4 ml-1" />
-                  </a>
-                  <a href="#" className="text-gray-600 hover:text-gray-900">
-                    <Github className="w-5 h-5" />
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            {/* Pythia Project Card */}
-            <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-              <div
-                className="h-48 bg-gray-200"
-                style={{
-                  backgroundImage: "url('/pythia.png')",
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                }}
-              ></div>
-              <div className="p-6">
-                <h3 className="text-xl font-semibold mb-2 text-black">
-                  Pythia
-                </h3>
-                <p className="text-gray-600 mb-4">
-                  Bridging neurobiology, AI & future. Licensed under the Animal
-                  Ethics Committee Approval Certificate. Creator of Pythia.
-                </p>
-                <div className="flex justify-between items-center">
-                  <a
-                    href="https://x.com/neirylab"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 hover:text-blue-700 flex items-center"
-                  >
-                    Learn more <ExternalLink className="w-4 h-4 ml-1" />
-                  </a>
-                  <a href="#" className="text-gray-600 hover:text-gray-900">
-                    <Github className="w-5 h-5" />
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            {/* Add more project cards here in the future */}
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section id="features" className="py-16 md:py-24 bg-gray-100">
-        <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-3xl md:text-4xl font-bold text-black mb-12 text-center">
-            Features
-          </h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <h3 className="text-xl font-semibold mb-2 text-black">
-                Join Our Community
-              </h3>
-              <p className="text-gray-600 mb-4">
-                Join our discussions on Telegram to connect with other community
-                members and stay updated on the latest developments.
-              </p>
-              <a
-                href="https://t.me/Phyacc"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-600 hover:text-blue-700"
+                className="bg-white rounded-lg shadow-md overflow-hidden 
+                            hover:shadow-[0_0_15px_rgba(0,255,255,0.3)] 
+                            transition-all duration-300 
+                            border border-cyan-500/30"
               >
-                Join Telegram
-              </a>
-            </div>
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <h3 className="text-xl font-semibold mb-2 text-black">
-                Premium Channel for Token Holders
-              </h3>
-              <p className="text-gray-600 mb-4">
-                If you're a holder of at least 5 million tokens, you are invited
-                to our premium channel where you can get exclusive information
-                and discuss with like-minded individuals.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+                <div
+                  className="h-48 bg-gray-200"
+                  style={{
+                    backgroundImage: "url('/phyacc.png')",
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                  }}
+                ></div>
+                <div className="p-6">
+                  <h3 className="text-xl font-semibold mb-2 text-black">
+                    Phy/Acc
+                  </h3>
+                  <p className="text-gray-600 mb-4">
+                    We are a community-run project that helps with the
+                    development and funding of the new era of AI, which is
+                    Physical AI. Our mission is to advance the understanding and
+                    application of AI in physical systems, enabling innovative
+                    solutions across various fields.
+                  </p>
 
-      {/* Roadmap Section */}
-      <section id="roadmap" className="py-16 md:py-24">
-        <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-3xl md:text-4xl font-bold text-black mb-12 text-center">
-            Roadmap
-          </h2>
-          <div className="space-y-8">
-            <div className="relative pl-8 border-l-2 border-blue-500">
-              <div className="absolute -left-2 top-0 w-4 h-4 rounded-full bg-blue-500"></div>
-              <div className="mb-4">
-                <h3 className="text-xl font-semibold mb-2 text-black">
-                  Launch
+                  <div className="flex justify-between items-center">
+                    <a
+                      href="https://x.com/i/communities/1877722245616861227"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-700 flex items-center"
+                    >
+                      Learn more <ExternalLink className="w-4 h-4 ml-1" />
+                    </a>
+                    <a href="#" className="text-gray-600 hover:text-gray-900">
+                      <Github className="w-5 h-5" />
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              {/* AntroOne Project Card */}
+              <div
+                className="bg-white rounded-lg shadow-md overflow-hidden 
+                            hover:shadow-[0_0_15px_rgba(0,255,255,0.3)] 
+                            transition-all duration-300 
+                            border border-cyan-500/30"
+              >
+                <div
+                  className="h-48 bg-gray-200"
+                  style={{
+                    backgroundImage: "url('/antroOne.png')",
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                  }}
+                ></div>
+                <div className="p-6">
+                  <h3 className="text-xl font-semibold mb-2 text-black">
+                    AntroOne
+                  </h3>
+                  <p className="text-gray-600 mb-4">
+                    STAGE 2 of an experiment on human-robot interaction based on
+                    heavily modified InMoov.
+                  </p>
+                  <div className="flex justify-between items-center">
+                    <a
+                      href="https://x.com/AntroOne"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-700 flex items-center"
+                    >
+                      Learn more <ExternalLink className="w-4 h-4 ml-1" />
+                    </a>
+                    <a href="#" className="text-gray-600 hover:text-gray-900">
+                      <Github className="w-5 h-5" />
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              {/* Pythia Project Card */}
+              <div
+                className="bg-white rounded-lg shadow-md overflow-hidden 
+                            hover:shadow-[0_0_15px_rgba(0,255,255,0.3)] 
+                            transition-all duration-300 
+                            border border-cyan-500/30"
+              >
+                <div
+                  className="h-48 bg-gray-200"
+                  style={{
+                    backgroundImage: "url('/pythia.png')",
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                  }}
+                ></div>
+                <div className="p-6">
+                  <h3 className="text-xl font-semibold mb-2 text-black">
+                    Pythia
+                  </h3>
+                  <p className="text-gray-600 mb-4">
+                    Bridging neurobiology, AI & future. Licensed under the
+                    Animal Ethics Committee Approval Certificate. Creator of
+                    Pythia.
+                  </p>
+                  <div className="flex justify-between items-center">
+                    <a
+                      href="https://x.com/neirylab"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-700 flex items-center"
+                    >
+                      Learn more <ExternalLink className="w-4 h-4 ml-1" />
+                    </a>
+                    <a href="#" className="text-gray-600 hover:text-gray-900">
+                      <Github className="w-5 h-5" />
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              {/* Add more project cards here in the future */}
+            </div>
+          </div>
+        </section>
+
+        {/* Features Section */}
+        <section id="features" className="py-16 md:py-24 bg-gray-100">
+          <div className="max-w-7xl mx-auto px-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-12 text-center">
+              Features
+            </h2>
+            <motion.div
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              transition={{ duration: 0.8 }}
+              className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
+            >
+              <div
+                className="bg-gray-900/80 p-6 rounded-lg 
+                            border border-cyan-500/30 
+                            hover:border-cyan-400 
+                            transition-all duration-300
+                            backdrop-blur-sm"
+              >
+                <h3 className="text-xl font-semibold mb-2 text-white">
+                  Join Our Community
                 </h3>
-                <p className="text-gray-600">
-                  Officially launch the Phy/Acc project, introducing our vision
-                  and goals to the community and stakeholders.
+                <p className="text-gray-300 mb-4">
+                  Join our discussions on Telegram to connect with other
+                  community members and stay updated on the latest developments.
+                </p>
+                <a
+                  href="https://t.me/Phyacc"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-cyan-400 hover:text-cyan-300"
+                >
+                  Join Telegram
+                </a>
+              </div>
+              <div
+                className="bg-gray-900/80 p-6 rounded-lg 
+                            border border-cyan-500/30 
+                            hover:border-cyan-400 
+                            transition-all duration-300
+                            backdrop-blur-sm"
+              >
+                <h3 className="text-xl font-semibold mb-2 text-white">
+                  Premium Channel for Token Holders
+                </h3>
+                <p className="text-gray-300 mb-4">
+                  If you're a holder of at least 5 million tokens, you are
+                  invited to our premium channel where you can get exclusive
+                  information and discuss with like-minded individuals.
                 </p>
               </div>
-            </div>
-            <div className="relative pl-8 border-l-2 border-blue-500">
-              <div className="absolute -left-2 top-0 w-4 h-4 rounded-full bg-blue-500"></div>
-              <div className="mb-4">
-                <h3 className="text-xl font-semibold mb-2 text-black">
-                  Network Development (Ongoing)
-                </h3>
-                <p className="text-gray-600">
-                  Continuously develop and enhance our network, focusing on
-                  building partnerships and collaborations within the industry.
-                </p>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Roadmap Section */}
+        <section id="roadmap" className="py-16 md:py-24">
+          <div className="max-w-7xl mx-auto px-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-12 text-center">
+              Roadmap
+            </h2>
+            <div className="space-y-8">
+              <div className="relative pl-8 border-l-2 border-cyan-500">
+                <div
+                  className="absolute -left-2 top-0 w-4 h-4 rounded-full bg-cyan-500
+                              shadow-[0_0_10px_rgba(0,255,255,0.5)]
+                              animate-pulse"
+                ></div>
+                <div className="mb-4">
+                  <h3 className="text-xl font-semibold mb-2 text-gray-900">
+                    Launch
+                  </h3>
+                  <p className="text-gray-600">
+                    Officially launch the Phy/Acc project, introducing our
+                    vision and goals to the community and stakeholders.
+                  </p>
+                </div>
               </div>
-            </div>
-            <div className="relative pl-8 border-l-2 border-blue-500">
-              <div className="absolute -left-2 top-0 w-4 h-4 rounded-full bg-blue-500"></div>
-              <div className="mb-4">
-                <h3 className="text-xl font-semibold mb-2 text-black">
-                  Transition into DAO
-                </h3>
-                <p className="text-gray-600">
-                  Begin the transition to a decentralized autonomous
-                  organization (DAO), empowering the community to participate in
-                  decision-making.
-                </p>
+              <div className="relative pl-8 border-l-2 border-cyan-500">
+                <div
+                  className="absolute -left-2 top-0 w-4 h-4 rounded-full bg-cyan-500
+                              shadow-[0_0_10px_rgba(0,255,255,0.5)]
+                              animate-pulse"
+                ></div>
+                <div className="mb-4">
+                  <h3 className="text-xl font-semibold mb-2 text-gray-900">
+                    Network Development (Ongoing)
+                  </h3>
+                  <p className="text-gray-600">
+                    Continuously develop and enhance our network, focusing on
+                    building partnerships and collaborations within the
+                    industry.
+                  </p>
+                </div>
               </div>
-            </div>
-            <div className="relative pl-8 border-l-2 border-blue-500">
-              <div className="absolute -left-2 top-0 w-4 h-4 rounded-full bg-blue-500"></div>
-              <div className="mb-4">
-                <h3 className="text-xl font-semibold mb-2 text-black">
-                  Accelerator Program
-                </h3>
-                <p className="text-gray-600">
-                  Launch an accelerator program to support startups and projects
-                  that align with our mission, providing resources and
-                  mentorship.
-                </p>
+              <div className="relative pl-8 border-l-2 border-cyan-500">
+                <div
+                  className="absolute -left-2 top-0 w-4 h-4 rounded-full bg-cyan-500
+                              shadow-[0_0_10px_rgba(0,255,255,0.5)]
+                              animate-pulse"
+                ></div>
+                <div className="mb-4">
+                  <h3 className="text-xl font-semibold mb-2 text-gray-900">
+                    Transition into DAO
+                  </h3>
+                  <p className="text-gray-600">
+                    Begin the transition to a decentralized autonomous
+                    organization (DAO), empowering the community to participate
+                    in decision-making.
+                  </p>
+                </div>
               </div>
-            </div>
-            <div className="relative pl-8 border-l-2 border-blue-500">
-              <div className="absolute -left-2 top-0 w-4 h-4 rounded-full bg-blue-500"></div>
-              <div className="mb-4">
-                <h3 className="text-xl font-semibold mb-2 text-black">
-                  Research Community
-                </h3>
-                <p className="text-gray-600">
-                  Foster a research community focused on advancing the field of
-                  Physical AI, encouraging collaboration and knowledge sharing.
-                </p>
+              <div className="relative pl-8 border-l-2 border-cyan-500">
+                <div
+                  className="absolute -left-2 top-0 w-4 h-4 rounded-full bg-cyan-500
+                              shadow-[0_0_10px_rgba(0,255,255,0.5)]
+                              animate-pulse"
+                ></div>
+                <div className="mb-4">
+                  <h3 className="text-xl font-semibold mb-2 text-gray-900">
+                    Accelerator Program
+                  </h3>
+                  <p className="text-gray-600">
+                    Launch an accelerator program to support startups and
+                    projects that align with our mission, providing resources
+                    and mentorship.
+                  </p>
+                </div>
               </div>
-            </div>
-            <div className="relative pl-8 border-l-2 border-blue-500">
-              <div className="absolute -left-2 top-0 w-4 h-4 rounded-full bg-blue-500"></div>
-              <div className="mb-4">
-                <h3 className="text-xl font-semibold mb-2 text-black">
-                  Builders Fund
-                </h3>
-                <p className="text-gray-600">
-                  Establish a Builders Fund to provide financial support for
-                  innovative projects and initiatives within the Phy/Acc
-                  ecosystem.
-                </p>
+              <div className="relative pl-8 border-l-2 border-cyan-500">
+                <div
+                  className="absolute -left-2 top-0 w-4 h-4 rounded-full bg-cyan-500
+                              shadow-[0_0_10px_rgba(0,255,255,0.5)]
+                              animate-pulse"
+                ></div>
+                <div className="mb-4">
+                  <h3 className="text-xl font-semibold mb-2 text-gray-900">
+                    Research Community
+                  </h3>
+                  <p className="text-gray-600">
+                    Foster a research community focused on advancing the field
+                    of Physical AI, encouraging collaboration and knowledge
+                    sharing.
+                  </p>
+                </div>
+              </div>
+              <div className="relative pl-8 border-l-2 border-cyan-500">
+                <div
+                  className="absolute -left-2 top-0 w-4 h-4 rounded-full bg-cyan-500
+                              shadow-[0_0_10px_rgba(0,255,255,0.5)]
+                              animate-pulse"
+                ></div>
+                <div className="mb-4">
+                  <h3 className="text-xl font-semibold mb-2 text-gray-900">
+                    Builders Fund
+                  </h3>
+                  <p className="text-gray-600">
+                    Establish a Builders Fund to provide financial support for
+                    innovative projects and initiatives within the Phy/Acc
+                    ecosystem.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
 
       {/* Bottom Section */}
       <section className="py-16 bg-gray-100">
@@ -408,9 +545,16 @@ const ProjectWebsite = () => {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4">
+      {/* Footer with Particles */}
+      <footer className="relative bg-gray-900 text-white py-12">
+        <Particles
+          id="tsparticles-footer"
+          init={particlesInit}
+          loaded={particlesLoaded}
+          options={particlesConfig}
+          className="absolute inset-0"
+        />
+        <div className="relative z-10 max-w-7xl mx-auto px-4">
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div>
               <h3 className="text-lg font-semibold mb-4">About</h3>

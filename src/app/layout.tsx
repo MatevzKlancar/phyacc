@@ -17,7 +17,13 @@ export const metadata: Metadata = {
   description:
     "Explore the intersection of physical systems and AI with Phy/Acc.",
   icons: {
-    icon: "/faviconPhyAcc.png",
+    icon: [
+      { url: "/faviconPhyAcc.png", type: "image/png", sizes: "any" },
+      { url: "/faviconPhyAcc.png", type: "image/png", sizes: "32x32" },
+      { url: "/faviconPhyAcc.png", type: "image/png", sizes: "16x16" },
+    ],
+    shortcut: [{ url: "/faviconPhyAcc.png", type: "image/png" }],
+    apple: [{ url: "/faviconPhyAcc.png", type: "image/png" }],
   },
 };
 
@@ -28,9 +34,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <head>
-        <link rel="icon" href="/faviconPhyAcc.png" type="image/png" />
-      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
