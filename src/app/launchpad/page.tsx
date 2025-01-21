@@ -12,11 +12,19 @@ import { CONSTANTS } from "../lib/solana/constants";
 import { ProjectMilestones } from "../components/launchpad/ProjectMilestones";
 import { Copy } from "lucide-react";
 import { ProjectDetails } from "../components/launchpad/ProjectDetails";
+import { Pill } from "../components/launchpad/components/pill";
 
 interface ProjectWithFunding extends Project {
   balance?: number;
   fundingPercentage?: number;
 }
+
+import { Jura } from 'next/font/google';
+
+const jura = Jura({ 
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700'],
+});
 
 export default function LaunchpadPage() {
   const [projects, setProjects] = useState<ProjectWithFunding[]>([]);
@@ -136,7 +144,7 @@ export default function LaunchpadPage() {
 
   if (showLoading)
     return (
-      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+      <div className={`${jura.className} min-h-screen bg-[#0a0a0a] flex items-center justify-center`}>
         <img
           src="/loading-animation-desktop.gif"
           alt="Loading..."
@@ -146,7 +154,7 @@ export default function LaunchpadPage() {
     );
 
   return (
-    <main className="min-h-screen bg-[#0a0a0a] text-white">
+    <main className={`${jura.className} min-h-screen bg-[#0a0a0a] text-white`}>
       <ProjectSubmissionModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -167,17 +175,14 @@ export default function LaunchpadPage() {
             </p>
           </div>
           <div className="flex gap-8 items-center">
-            <div>
-              <p className="text-gray-400">Total raised</p>
-              <p className="text-xl font-bold">
-                {projects.reduce((acc, p) => acc + (p.funding_goal || 0), 0)}{" "}
-                SOL
-              </p>
-            </div>
-            <div>
-              <p className="text-gray-400">Projects submitted</p>
-              <p className="text-xl font-bold">{projects.length}</p>
-            </div>
+            <Pill 
+              label="Total raised"
+              value={`${projects.reduce((acc, p) => acc + (p.funding_goal || 0), 0)} SOL`}
+            />
+            <Pill
+              label="Projects submitted"
+              value={projects.length}
+            />
             {walletAddress ? (
               <div className="flex gap-4 items-center">
                 <div className="flex flex-col">
