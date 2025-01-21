@@ -24,24 +24,23 @@ export const solanaBalance = {
       const wallet = new PublicKey(walletAddress);
       const mint = new PublicKey(tokenMint);
 
-      // Get the associated token account address
-      const tokenAccount = await getAssociatedTokenAddress(
-        mint,
+      // Get all token accounts for the wallet
+      const tokenAccounts = await connection.getParsedTokenAccountsByOwner(
         wallet,
-        false, // allowOwnerOffCurve
-        TOKEN_PROGRAM_ID
+        { mint: mint }
       );
 
-      try {
-        const balance = await connection.getTokenAccountBalance(tokenAccount);
-        return Number(balance.value.uiAmount);
-      } catch (error) {
-        // If token account doesn't exist, balance is 0
-        return 0;
+      // Sum up balances from all accounts
+      let totalBalance = 0;
+      for (const account of tokenAccounts.value) {
+        const parsedInfo = account.account.data.parsed.info;
+        totalBalance += Number(parsedInfo.tokenAmount.uiAmount);
       }
+
+      return totalBalance;
     } catch (error) {
       console.error("Error fetching token balance:", error);
-      throw error;
+      return 0; // Return 0 instead of throwing to handle new wallets gracefully
     }
   },
 
