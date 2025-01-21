@@ -149,7 +149,7 @@ export default function LaunchpadPage() {
     );
 
   return (
-    <main className={`${jura.className} min-h-screen bg-[#0a0a0a] text-white`}>
+    <main className={`${jura.className} min-h-screen bg-[#0a0a0a] text-white launchpad-page`}>
       <ProjectSubmissionModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -161,13 +161,15 @@ export default function LaunchpadPage() {
       {/* Stats Bar */}
       <div className="border-b border-gray-800 p-4">
         <div className="container mx-auto flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold text-cyan-400">
-              PHY/ACC LAUNCHPAD
-            </h1>
-            <p className="text-gray-400">
+          <div className="flex-col items-center gap-4">
+            <div className="items-center gap-4 flex-col">
+              <img src="/logoweb.svg" alt="Logo" className="h-14 w-122" />
+            </div>
+          <div className="gap-4">
+            <p className="text-gray-400" style={{ paddingLeft: '5px' }}>
               Discover or Build the Next AI Revolution.
             </p>
+          </div>
           </div>
           <div className="flex gap-8 items-center">
             <Pill 

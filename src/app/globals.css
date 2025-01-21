@@ -18,6 +18,7 @@ body {
   color: var(--foreground);
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
+  font-weight: 300;
 }
 
 @layer utilities {
@@ -61,4 +62,8 @@ body {
   to {
     transform: translateY(50%);
   }
+}
+
+.launchpad-page {
+  font-weight: 600; /* Set the font weight for the launchpad page */
 }

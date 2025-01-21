@@ -12,12 +12,30 @@ export function Pill({ value, label }: PillProps) {
         width: '270px',
         height: '70px',
         backgroundColor: '#202B3A',
-        borderRadius: '19px'
+        borderRadius: '19px',
+        position: 'relative',
+        overflow: 'hidden'
       }}
     >
+      <div 
+        style={{
+          position: 'absolute',
+          bottom: '-7px',
+          right: 0,
+          width: '70px',
+          height: '100%',
+          backgroundImage: label?.toLowerCase().includes('raised') 
+            ? 'url(/coins.svg)' 
+            : 'url(/project.svg)',
+          backgroundSize: 'contain',
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'right bottom',
+          opacity: 0.02
+        }}
+      />
       <div className="flex flex-col">
-        <span style={{ color: '#ADBFD8' }}>{value}</span>
-        <span style={{ color: '#8199BA' }}>{label}</span>
+        <span className="font-bold" style={{ color: '#ADBFD8', fontSize: '1.2em' }}>{value}</span>
+        <span style={{ color: '#8199BA', fontSize: '1em', fontWeight: '700' }}>{label}</span>
       </div>
     </div>
   );
