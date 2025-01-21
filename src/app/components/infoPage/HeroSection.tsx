@@ -5,7 +5,7 @@ import { ChevronDown } from "lucide-react";
 import { motion } from "framer-motion";
 import Particles from "react-tsparticles";
 import { loadFull } from "tsparticles";
-import { particlesConfig } from "../lib/particlesConfig";
+import { particlesConfig } from "../../lib/particlesConfig";
 
 export const HeroSection = () => {
   const particlesInit = useCallback(async (engine: any) => {

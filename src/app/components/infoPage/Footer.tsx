@@ -3,7 +3,7 @@
 import { useCallback } from "react";
 import Particles from "react-tsparticles";
 import { loadFull } from "tsparticles";
-import { particlesConfig } from "../lib/particlesConfig";
+import { particlesConfig } from "../../lib/particlesConfig";
 
 export const Footer = () => {
   const particlesInit = useCallback(async (engine: any) => {

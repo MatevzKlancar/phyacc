@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { ChevronDown } from "lucide-react";
-import { Project } from "../lib/supabase/types";
+import { Project } from "../../lib/supabase/types";
 
 interface ProjectDetailsProps {
   project: Project & {

@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
-import { projectsService } from "../lib/supabase";
-import { storageService } from "../lib/supabase";
+import { projectsService } from "../../lib/supabase";
+import { storageService } from "../../lib/supabase";
 
 interface Milestone {
   title: string;

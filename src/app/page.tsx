@@ -1,11 +1,11 @@
 "use client";
 
-import { HeroSection } from "./components/HeroSection";
-import { Navigation } from "./components/Navigation";
-import { FeaturedProjectsSection } from "./components/FeaturedProjectsSection";
-import { FeaturesSection } from "./components/FeaturesSection";
-import { RoadmapSection } from "./components/RoadmapSection";
-import { Footer } from "./components/Footer";
+import { HeroSection } from "./components/infoPage/HeroSection";
+import { Navigation } from "./components/infoPage/Navigation";
+import { FeaturedProjectsSection } from "./components/infoPage/FeaturedProjectsSection";
+import { FeaturesSection } from "./components/infoPage/FeaturesSection";
+import { RoadmapSection } from "./components/infoPage/RoadmapSection";
+import { Footer } from "./components/infoPage/Footer";
 
 const ProjectWebsite = () => {
   return (
