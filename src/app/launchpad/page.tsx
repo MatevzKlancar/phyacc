@@ -14,6 +14,7 @@ import { Copy } from "lucide-react";
 import { ProjectDetails } from "../components/launchpad/ProjectDetails";
 import { Pill } from "../components/launchpad/components/pill";
 import Link from "next/link";
+import { TopBarButton } from "../components/launchpad/components/topbarbutton";
 
 interface ProjectWithFunding extends Project {
   balance?: number;
@@ -180,62 +181,16 @@ export default function LaunchpadPage() {
               label="Projects submitted"
               value={projects.length}
             />
-            {walletAddress ? (
-              <div className="flex gap-4 items-center">
-                <div className="flex flex-col">
-                  <button
-                    onClick={handleWalletClick}
-                    className="bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-lg transition-colors"
-                    title="Click to disconnect"
-                  >
-                    {walletAddress.slice(0, 4)}...{walletAddress.slice(-4)}
-                  </button>
-                  {walletAddress && (
-                    <div className="flex flex-col text-sm">
-                      <span
-                        className={`${
-                          (solBalance ?? 0) >= CONSTANTS.MIN_SOL_BALANCE
-                            ? "text-green-500"
-                            : "text-red-500"
-                        }`}
-                      >
-                        {solBalance?.toFixed(2) || 0} SOL
-                      </span>
-                      {CONSTANTS.TOKEN_MINT_ADDRESS && (
-                        <span
-                          className={`${
-                            (tokenBalance || 0) >= CONSTANTS.MIN_TOKEN_BALANCE
-                              ? "text-green-500"
-                              : "text-red-500"
-                          }`}
-                        >
-                          {tokenBalance?.toFixed(2) || 0} tokens
-                        </span>
-                      )}
-                    </div>
-                  )}
-                </div>
-                <button
-                  onClick={handleSubmitClick}
-                  className={`px-6 py-2 rounded-lg transition-colors ${
-                    isEligible
-                      ? "bg-green-600 hover:bg-green-700"
-                      : "bg-gray-600 cursor-not-allowed"
-                  }`}
-                  disabled={!isEligible || checkingEligibility}
-                >
-                  {checkingEligibility ? "Checking..." : "Submit your project"}
-                </button>
-              </div>
-            ) : (
-              <button
-                onClick={handleWalletClick}
-                className="bg-cyan-500 hover:bg-cyan-600 text-white px-6 py-2 rounded-lg transition-colors"
-                disabled={connecting}
-              >
-                {connecting ? "Connecting..." : "Connect Wallet"}
-              </button>
-            )}
+            <TopBarButton
+              walletAddress={walletAddress}
+              connecting={connecting}
+              isEligible={isEligible}
+              checkingEligibility={checkingEligibility}
+              solBalance={solBalance || 0}
+              tokenBalance={tokenBalance || 0}
+              onWalletClick={handleWalletClick}
+              onSubmitClick={handleSubmitClick}
+            />
           </div>
         </div>
       </div>
