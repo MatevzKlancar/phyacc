@@ -13,6 +13,7 @@ import { ProjectMilestones } from "../components/launchpad/ProjectMilestones";
 import { Copy } from "lucide-react";
 import { ProjectDetails } from "../components/launchpad/ProjectDetails";
 import { Pill } from "../components/launchpad/components/pill";
+import Link from "next/link";
 
 interface ProjectWithFunding extends Project {
   balance?: number;
@@ -43,8 +44,6 @@ export default function LaunchpadPage() {
   const [connection] = useState(
     new Connection(process.env.NEXT_PUBLIC_SOLANA_RPC_URL || "")
   );
-  const [selectedProject, setSelectedProject] =
-    useState<ProjectWithFunding | null>(null);
 
   const loadProjects = async () => {
     try {
@@ -136,10 +135,6 @@ export default function LaunchpadPage() {
     } catch (err) {
       console.error("Failed to copy text: ", err);
     }
-  };
-
-  const handleProjectClick = (project: ProjectWithFunding) => {
-    setSelectedProject(project);
   };
 
   if (showLoading)
@@ -243,26 +238,16 @@ export default function LaunchpadPage() {
         </div>
       </div>
 
-      {selectedProject ? (
-        <>
-          <button
-            onClick={() => setSelectedProject(null)}
-            className="ml-4 mt-4 text-gray-400 hover:text-white"
-          >
-            ← Back to projects
-          </button>
-          <ProjectDetails project={selectedProject} />
-        </>
-      ) : (
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex gap-8">
-            <div className="flex-1 space-y-6">
-              {projects.map((project) => (
-                <div
-                  key={project.id}
-                  onClick={() => handleProjectClick(project)}
-                  className="bg-gray-900/80 border border-gray-800 rounded-lg p-6 flex flex-col gap-6 cursor-pointer hover:border-gray-700 transition-colors"
-                >
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex gap-8">
+          <div className="flex-1 space-y-6">
+            {projects.map((project) => (
+              <Link
+                key={project.id}
+                href={`/launchpad/project/${project.id}`}
+                className="block"
+              >
+                <div className="bg-gray-900/80 border border-gray-800 rounded-lg p-6 flex flex-col gap-6 cursor-pointer hover:border-gray-700 transition-colors">
                   <div className="w-48 h-32 bg-gray-800 rounded-lg overflow-hidden">
                     {project.image_url && (
                       <img
@@ -330,48 +315,48 @@ export default function LaunchpadPage() {
                     onMilestoneCompleted={loadProjects}
                   />
                 </div>
-              ))}
-            </div>
+              </Link>
+            ))}
+          </div>
 
-            <div className="w-80 space-y-6">
-              <div className="bg-gray-900/80 border border-gray-800 rounded-lg p-4">
-                <input
-                  type="text"
-                  placeholder="Search projects"
-                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2"
-                />
+          <div className="w-80 space-y-6">
+            <div className="bg-gray-900/80 border border-gray-800 rounded-lg p-4">
+              <input
+                type="text"
+                placeholder="Search projects"
+                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2"
+              />
+            </div>
+            <div className="bg-gray-900/80 border border-gray-800 rounded-lg p-4">
+              <h3 className="font-semibold mb-3">Sort by</h3>
+              <div className="space-y-2">
+                <label className="flex items-center gap-2">
+                  <input type="radio" name="sort" defaultChecked />
+                  <span>Trending</span>
+                </label>
+                <label className="flex items-center gap-2">
+                  <input type="radio" name="sort" />
+                  <span>New</span>
+                </label>
+                <label className="flex items-center gap-2">
+                  <input type="radio" name="sort" />
+                  <span>Top rated</span>
+                </label>
+                <label className="flex items-center gap-2">
+                  <input type="radio" name="sort" />
+                  <span>Most raised</span>
+                </label>
               </div>
-              <div className="bg-gray-900/80 border border-gray-800 rounded-lg p-4">
-                <h3 className="font-semibold mb-3">Sort by</h3>
-                <div className="space-y-2">
-                  <label className="flex items-center gap-2">
-                    <input type="radio" name="sort" defaultChecked />
-                    <span>Trending</span>
-                  </label>
-                  <label className="flex items-center gap-2">
-                    <input type="radio" name="sort" />
-                    <span>New</span>
-                  </label>
-                  <label className="flex items-center gap-2">
-                    <input type="radio" name="sort" />
-                    <span>Top rated</span>
-                  </label>
-                  <label className="flex items-center gap-2">
-                    <input type="radio" name="sort" />
-                    <span>Most raised</span>
-                  </label>
-                </div>
-              </div>
-              <div className="bg-gray-900/80 border border-gray-800 rounded-lg p-4">
-                <h3 className="font-semibold mb-3">Category</h3>
-                <select className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2">
-                  <option>Select a category</option>
-                </select>
-              </div>
+            </div>
+            <div className="bg-gray-900/80 border border-gray-800 rounded-lg p-4">
+              <h3 className="font-semibold mb-3">Category</h3>
+              <select className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2">
+                <option>Select a category</option>
+              </select>
             </div>
           </div>
         </div>
-      )}
+      </div>
     </main>
   );
 }

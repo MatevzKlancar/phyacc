@@ -53,15 +53,19 @@ export const projectsService = {
     return newProject as Project;
   },
 
-  async getProjectById(id: string) {
+  async getProjectById(id: string): Promise<Project | null> {
     const { data, error } = await supabase
       .from("projects")
       .select("*")
       .eq("id", id)
       .single();
 
-    if (error) throw error;
-    return data as Project;
+    if (error) {
+      console.error("Error fetching project:", error);
+      return null;
+    }
+
+    return data;
   },
 
   async createProjectUpdate(update: Omit<ProjectUpdate, "id" | "created_at">) {
