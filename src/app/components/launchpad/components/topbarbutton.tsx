@@ -33,15 +33,6 @@ export function TopBarButton({
             {walletAddress.slice(0, 4)}...{walletAddress.slice(-4)}
           </button>
           <div className="flex flex-col text-sm">
-            <span
-              className={`${
-                (solBalance ?? 0) >= CONSTANTS.MIN_SOL_BALANCE
-                  ? "text-green-500"
-                  : "text-red-500"
-              }`}
-            >
-              {solBalance?.toFixed(2) || 0} SOL
-            </span>
             {CONSTANTS.TOKEN_MINT_ADDRESS && (
               <span
                 className={`${

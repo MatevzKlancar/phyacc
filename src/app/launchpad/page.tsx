@@ -11,7 +11,6 @@ import { ProjectSubmissionModal } from "../components/launchpad/ProjectSubmissio
 import { CONSTANTS } from "../lib/solana/constants";
 import { ProjectMilestones } from "../components/launchpad/ProjectMilestones";
 import { Copy } from "lucide-react";
-import { ProjectDetails } from "../components/launchpad/ProjectDetails";
 import { Pill } from "../components/launchpad/components/pill";
 import Link from "next/link";
 import { TopBarButton } from "../components/launchpad/components/topbarbutton";
@@ -21,11 +20,11 @@ interface ProjectWithFunding extends Project {
   fundingPercentage?: number;
 }
 
-import { Jura } from 'next/font/google';
+import { Jura } from "next/font/google";
 
-const jura = Jura({ 
-  subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700'],
+const jura = Jura({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
 });
 
 export default function LaunchpadPage() {
@@ -105,17 +104,11 @@ export default function LaunchpadPage() {
         console.error("Failed to connect wallet:", error);
       }
     } else if (!isEligible) {
-      const requirements = [
-        `${CONSTANTS.MIN_SOL_BALANCE} SOL (Current: ${
-          solBalance?.toFixed(2) || 0
-        } SOL)`,
-        CONSTANTS.TOKEN_MINT_ADDRESS &&
-          `${CONSTANTS.MIN_TOKEN_BALANCE} tokens (Current: ${
-            tokenBalance?.toFixed(2) || 0
-          })`,
-      ].filter(Boolean);
-
-      alert(`Insufficient balance. You need:\n${requirements.join("\n")}`);
+      alert(
+        `Insufficient balance. You need: ${
+          CONSTANTS.MIN_TOKEN_BALANCE
+        } tokens (Current: ${tokenBalance?.toFixed(2) || 0})`
+      );
     } else {
       setIsModalOpen(true);
     }
@@ -140,7 +133,9 @@ export default function LaunchpadPage() {
 
   if (showLoading)
     return (
-      <div className={`${jura.className} min-h-screen bg-[#0a0a0a] flex items-center justify-center`}>
+      <div
+        className={`${jura.className} min-h-screen bg-[#0a0a0a] flex items-center justify-center`}
+      >
         <img
           src="/loading-animation-desktop.gif"
           alt="Loading..."
@@ -150,7 +145,9 @@ export default function LaunchpadPage() {
     );
 
   return (
-    <main className={`${jura.className} min-h-screen bg-[#0a0a0a] text-white launchpad-page`}>
+    <main
+      className={`${jura.className} min-h-screen bg-[#0a0a0a] text-white launchpad-page`}
+    >
       <ProjectSubmissionModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -161,42 +158,79 @@ export default function LaunchpadPage() {
 
       {/* Stats Bar */}
       <div className="border-b border-gray-800 p-4">
-        <div className="container mx-auto flex justify-between items-center">
-          <div className="flex-col items-center gap-4">
-            <div className="items-center gap-4 flex-col">
-              <img src="/logoweb.svg" alt="Logo" className="h-14 w-122" />
+        <div className="container mx-auto">
+          <div className="flex flex-col md:flex-row md:justify-between md:items-center space-y-4 md:space-y-0">
+            <div className="flex-col items-center">
+              <div className="items-center gap-4 flex-col">
+                <img
+                  src="/logoweb.svg"
+                  alt="Logo"
+                  className="h-10 md:h-14 w-auto"
+                />
+              </div>
+              <div className="gap-4">
+                <p
+                  className="text-gray-400 text-sm md:text-base"
+                  style={{ paddingLeft: "5px" }}
+                >
+                  Discover or Build the Next AI Revolution.
+                </p>
+              </div>
             </div>
-          <div className="gap-4">
-            <p className="text-gray-400" style={{ paddingLeft: '5px' }}>
-              Discover or Build the Next AI Revolution.
-            </p>
-          </div>
-          </div>
-          <div className="flex gap-8 items-center">
-            <Pill 
-              label="Total raised"
-              value={`${projects.reduce((acc, p) => acc + (p.funding_goal || 0), 0)} SOL`}
-            />
-            <Pill
-              label="Projects submitted"
-              value={projects.length}
-            />
-            <TopBarButton
-              walletAddress={walletAddress}
-              connecting={connecting}
-              isEligible={isEligible}
-              checkingEligibility={checkingEligibility}
-              solBalance={solBalance || 0}
-              tokenBalance={tokenBalance || 0}
-              onWalletClick={handleWalletClick}
-              onSubmitClick={handleSubmitClick}
-            />
+            <div className="flex flex-col md:flex-row gap-4 md:gap-8 items-start md:items-center">
+              <div className="grid grid-cols-2 md:flex gap-4">
+                <Pill
+                  label="Total raised"
+                  value={`${projects.reduce(
+                    (acc, p) => acc + (p.funding_goal || 0),
+                    0
+                  )} SOL`}
+                />
+                <Pill label="Projects submitted" value={projects.length} />
+              </div>
+              <TopBarButton
+                walletAddress={walletAddress}
+                connecting={connecting}
+                isEligible={isEligible}
+                checkingEligibility={checkingEligibility}
+                solBalance={solBalance || 0}
+                tokenBalance={tokenBalance || 0}
+                onWalletClick={handleWalletClick}
+                onSubmitClick={handleSubmitClick}
+              />
+            </div>
           </div>
         </div>
       </div>
 
+      {/* Main content area */}
       <div className="container mx-auto px-4 py-8">
-        <div className="flex gap-8">
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* Sidebar for mobile */}
+          <div className="lg:hidden space-y-4 mb-6">
+            <div className="bg-gray-900/80 border border-gray-800 rounded-lg p-4">
+              <input
+                type="text"
+                placeholder="Search projects"
+                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2"
+              />
+            </div>
+            <div className="bg-gray-900/80 border border-gray-800 rounded-lg p-4">
+              <select className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2">
+                <option>Sort by: Trending</option>
+                <option>Sort by: New</option>
+                <option>Sort by: Top rated</option>
+                <option>Sort by: Most raised</option>
+              </select>
+            </div>
+            <div className="bg-gray-900/80 border border-gray-800 rounded-lg p-4">
+              <select className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2">
+                <option>Select a category</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Projects Grid */}
           <div className="flex-1 space-y-6">
             {projects.map((project) => (
               <Link
@@ -204,8 +238,8 @@ export default function LaunchpadPage() {
                 href={`/launchpad/project/${project.id}`}
                 className="block"
               >
-                <div className="bg-gray-900/80 border border-gray-800 rounded-lg p-6 flex flex-col gap-6 cursor-pointer hover:border-gray-700 transition-colors">
-                  <div className="w-48 h-32 bg-gray-800 rounded-lg overflow-hidden">
+                <div className="bg-gray-900/80 border border-gray-800 rounded-lg p-4 md:p-6 flex flex-col md:flex-row gap-4 md:gap-6 cursor-pointer hover:border-gray-700 transition-colors">
+                  <div className="w-full md:w-48 h-48 md:h-32 bg-gray-800 rounded-lg overflow-hidden">
                     {project.image_url && (
                       <img
                         src={project.image_url}
@@ -215,14 +249,16 @@ export default function LaunchpadPage() {
                     )}
                   </div>
                   <div className="flex-1">
-                    <div className="flex justify-between items-start">
+                    <div className="flex flex-col md:flex-row justify-between items-start gap-2">
                       <div>
                         <h2 className="text-xl font-semibold">
                           {project.title}
                         </h2>
-                        <p className="text-gray-400">{project.description}</p>
+                        <p className="text-gray-400 text-sm md:text-base">
+                          {project.description}
+                        </p>
                       </div>
-                      <div className="text-gray-400">12 days left</div>
+                      <div className="text-gray-400 text-sm">12 days left</div>
                     </div>
                     <div className="mt-4">
                       <div className="flex justify-between mb-2">
@@ -276,7 +312,8 @@ export default function LaunchpadPage() {
             ))}
           </div>
 
-          <div className="w-80 space-y-6">
+          {/* Desktop Sidebar */}
+          <div className="hidden lg:block w-80 space-y-6">
             <div className="bg-gray-900/80 border border-gray-800 rounded-lg p-4">
               <input
                 type="text"

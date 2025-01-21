@@ -53,7 +53,7 @@ export const solanaBalance = {
     try {
       const solBalance = await this.getSOLBalance(walletAddress);
 
-      // If you want to check specific token balance
+      // Check only token balance
       if (CONSTANTS.TOKEN_MINT_ADDRESS) {
         const tokenBalance = await this.getTokenBalance(
           walletAddress,
@@ -61,16 +61,14 @@ export const solanaBalance = {
         );
 
         return {
-          isEligible:
-            solBalance >= CONSTANTS.MIN_SOL_BALANCE &&
-            tokenBalance >= CONSTANTS.MIN_TOKEN_BALANCE,
+          isEligible: tokenBalance >= CONSTANTS.MIN_TOKEN_BALANCE,
           solBalance,
           tokenBalance,
         };
       }
 
       return {
-        isEligible: solBalance >= CONSTANTS.MIN_SOL_BALANCE,
+        isEligible: false, // If no token mint address is set, not eligible
         solBalance,
       };
     } catch (error) {
