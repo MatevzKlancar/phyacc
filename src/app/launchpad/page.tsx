@@ -20,18 +20,10 @@ interface ProjectWithFunding extends Project {
   fundingPercentage?: number;
 }
 
-import { Jura } from "next/font/google";
-
-const jura = Jura({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-});
-
 export default function LaunchpadPage() {
   const [projects, setProjects] = useState<ProjectWithFunding[]>([]);
   const [loading, setLoading] = useState(true);
   const [showLoading, setShowLoading] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const { walletAddress, connecting, connectWallet, disconnectWallet } =
     useWallet();
   const {
@@ -96,32 +88,6 @@ export default function LaunchpadPage() {
     loadProjects();
   };
 
-  const handleSubmitClick = async () => {
-    if (!walletAddress) {
-      try {
-        await connectWallet();
-      } catch (error) {
-        console.error("Failed to connect wallet:", error);
-      }
-    } else if (!isEligible) {
-      alert(
-        `Insufficient balance. You need: ${
-          CONSTANTS.MIN_TOKEN_BALANCE
-        } tokens (Current: ${tokenBalance?.toFixed(2) || 0})`
-      );
-    } else {
-      setIsModalOpen(true);
-    }
-  };
-
-  const handleWalletClick = async () => {
-    if (walletAddress) {
-      await disconnectWallet();
-    } else {
-      await connectWallet();
-    }
-  };
-
   const copyToClipboard = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
@@ -131,77 +97,15 @@ export default function LaunchpadPage() {
     }
   };
 
-  if (showLoading)
-    return (
-      <div
-        className={`${jura.className} min-h-screen bg-[#0a0a0a] flex items-center justify-center`}
-      >
-        <img
-          src="/loading-animation-desktop.gif"
-          alt="Loading..."
-          className="object-contain"
-        />
-      </div>
-    );
-
   return (
-    <main
-      className={`${jura.className} min-h-screen bg-[#0a0a0a] text-white launchpad-page`}
-    >
+    <main className="launchpad-page">
       <ProjectSubmissionModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        isOpen={false}
+        onClose={() => {}}
         onSubmitSuccess={handleProjectSubmitted}
         walletAddress={walletAddress}
         isEligible={isEligible}
       />
-
-      {/* Stats Bar */}
-      <div className="border-b border-gray-800 p-4">
-        <div className="container mx-auto">
-          <div className="flex flex-col md:flex-row md:justify-between md:items-center space-y-4 md:space-y-0">
-            <div className="flex-col items-center">
-              <div className="items-center gap-4 flex-col">
-                <img
-                  src="/logoweb.svg"
-                  alt="Logo"
-                  className="h-10 md:h-14 w-auto"
-                />
-              </div>
-              <div className="gap-4">
-                <p
-                  className="text-gray-400 text-sm md:text-base"
-                  style={{ paddingLeft: "5px" }}
-                >
-                  Discover or Build the Next AI Revolution.
-                </p>
-              </div>
-            </div>
-            <div className="flex flex-col md:flex-row gap-4 md:gap-8 items-start md:items-center">
-              <div className="grid grid-cols-2 md:flex gap-4">
-                <Pill
-                  label="Total raised"
-                  value={`${projects.reduce(
-                    (acc, p) => acc + (p.funding_goal || 0),
-                    0
-                  )} SOL`}
-                />
-                <Pill label="Projects submitted" value={projects.length} />
-              </div>
-              <TopBarButton
-                walletAddress={walletAddress}
-                connecting={connecting}
-                isEligible={isEligible}
-                checkingEligibility={checkingEligibility}
-                solBalance={solBalance || 0}
-                tokenBalance={tokenBalance || 0}
-                onWalletClick={handleWalletClick}
-                onSubmitClick={handleSubmitClick}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* Main content area */}
       <div className="container mx-auto px-4 py-8">
@@ -285,9 +189,10 @@ export default function LaunchpadPage() {
                           {project.wallet_address}
                         </code>
                         <button
-                          onClick={() =>
-                            copyToClipboard(project.wallet_address)
-                          }
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            copyToClipboard(project.wallet_address);
+                          }}
                           className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
                           title="Copy wallet address"
                         >

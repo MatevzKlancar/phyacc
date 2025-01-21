@@ -1,4 +1,6 @@
 import { CONSTANTS } from "../../../lib/solana/constants";
+import Image from "next/image";
+import phantomLogo from "../../../../../public/phantom.jpeg";
 
 interface TopBarButtonProps {
   walletAddress: string | null;
@@ -47,10 +49,10 @@ export function TopBarButton({
           </div>
         </div>
         <button
-          onClick={onSubmitClick}
-          className={`px-6 py-2 rounded-lg transition-colors ${
+          onClick={() => window.location.href = '/launchpad/project/new'}
+          className={`w-48 h-12 rounded-lg transition-colors transform ${
             isEligible
-              ? "bg-green-600 hover:bg-green-700"
+              ? "bg-gradient-to-r from-[#3D6153] to-[#57A769] hover:bg-opacity-80 hover:scale-105"
               : "bg-gray-600 cursor-not-allowed"
           }`}
           disabled={!isEligible || checkingEligibility}
@@ -64,10 +66,19 @@ export function TopBarButton({
   return (
     <button
       onClick={onWalletClick}
-      className="bg-cyan-500 hover:bg-cyan-600 text-white px-6 py-2 rounded-lg transition-colors"
+      className="bg-[#9886e6] border-2 border-transparent hover:border-[#8675d5] text-[#ffffff] w-48 h-12 rounded-lg transition-colors flex items-center justify-center gap-2"
       disabled={connecting}
     >
-      {connecting ? "Connecting..." : "Connect Wallet"}
+      <Image 
+        src={phantomLogo} 
+        alt="Phantom Wallet" 
+        width={20} 
+        height={20}
+        className="align-middle"
+      />
+      <span className="align-middle" style={{ lineHeight: '1.5' }}>
+        {connecting ? "Connecting..." : "Connect Wallet"}
+      </span>
     </button>
   );
 }
