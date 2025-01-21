@@ -1,77 +1,90 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
-export interface PhantomWindow extends Window {
-  phantom?: {
-    solana?: {
-      connect(): Promise<{ publicKey: { toString(): string } }>;
-      disconnect(): Promise<void>;
-      isConnected: boolean;
-      publicKey?: { toString(): string };
-      on(
-        event: "connect" | "disconnect",
-        callback: (publicKey: { toString(): string }) => void
-      ): void;
-      removeAllListeners(event: "connect" | "disconnect"): void;
-    };
-  };
+type PhantomEvent = "connect" | "disconnect" | "accountChanged";
+
+interface PhantomProvider {
+  connect: (opts?: { onlyIfTrusted?: boolean }) => Promise<void>;
+  disconnect: () => Promise<void>;
+  on: (event: PhantomEvent, callback: (args: any) => void) => void;
+  off: (event: PhantomEvent, callback: (args: any) => void) => void;
+  isPhantom: boolean;
+  publicKey: { toString: () => string };
 }
 
-export const useWallet = () => {
-  const [walletAddress, setWalletAddress] = useState<string | null>(null);
-  const [connecting, setConnecting] = useState(false);
-
-  // Check initial connection state
-  useEffect(() => {
-    const checkWalletConnection = async () => {
-      const window = globalThis.window as PhantomWindow;
-      if (window.phantom?.solana) {
-        try {
-          if (
-            window.phantom.solana.isConnected &&
-            window.phantom.solana.publicKey
-          ) {
-            setWalletAddress(window.phantom.solana.publicKey.toString());
-          } else {
-            // If not connected, ensure we're properly disconnected
-            await window.phantom.solana.disconnect();
-            setWalletAddress(null);
-          }
-        } catch (error) {
-          console.error("Error checking wallet connection:", error);
-          // On any error, ensure we're disconnected
-          setWalletAddress(null);
-        }
+const getProvider = (): PhantomProvider | undefined => {
+  if (typeof window !== "undefined") {
+    if ("phantom" in window) {
+      const provider = (window as any).phantom?.solana;
+      if (provider?.isPhantom) {
+        return provider;
       }
-    };
+    }
+  }
+  return undefined;
+};
 
-    checkWalletConnection();
+export const useWallet = () => {
+  const [walletAddress, setWalletAddress] = useState<string>("");
+  const [provider, setProvider] = useState<PhantomProvider | undefined>(
+    undefined
+  );
+  const [connecting, setConnecting] = useState<boolean>(false);
+
+  useEffect(() => {
+    const provider = getProvider();
+    setProvider(provider);
+
+    if (provider) {
+      const handleConnect = (publicKey: any) => {
+        setWalletAddress(publicKey.toString());
+      };
+
+      const handleDisconnect = () => {
+        setWalletAddress("");
+        localStorage.removeItem("walletConnected");
+      };
+
+      const handleAccountChanged = (publicKey: any) => {
+        if (publicKey) {
+          setWalletAddress(publicKey.toString());
+        } else {
+          setWalletAddress("");
+        }
+      };
+
+      provider.on("connect", handleConnect);
+      provider.on("disconnect", handleDisconnect);
+      provider.on("accountChanged", handleAccountChanged);
+
+      if (localStorage.getItem("walletConnected") === "true") {
+        provider.connect({ onlyIfTrusted: true }).catch(() => {
+          localStorage.removeItem("walletConnected");
+        });
+      }
+
+      return () => {
+        provider.off("connect", handleConnect);
+        provider.off("disconnect", handleDisconnect);
+        provider.off("accountChanged", handleAccountChanged);
+      };
+    }
   }, []);
 
   const connectWallet = async () => {
     try {
       setConnecting(true);
-      const window = globalThis.window as PhantomWindow;
-
-      if (!window.phantom?.solana) {
-        throw new Error("Phantom wallet not found! Please install it.");
+      if (!provider) {
+        window.open("https://phantom.app/", "_blank");
+        return;
       }
 
-      // Ensure we're disconnected before attempting to connect
-      if (window.phantom.solana.isConnected) {
-        await window.phantom.solana.disconnect();
-        setWalletAddress(null);
-      }
-
-      // Now attempt to connect
-      const { publicKey } = await window.phantom.solana.connect();
-      setWalletAddress(publicKey.toString());
-      return publicKey.toString();
+      await provider.connect();
+      localStorage.setItem("walletConnected", "true");
     } catch (error) {
-      console.error("Error connecting wallet:", error);
-      setWalletAddress(null);
-      throw error;
+      console.error("Error connecting to wallet:", error);
+      localStorage.removeItem("walletConnected");
     } finally {
       setConnecting(false);
     }
@@ -79,52 +92,21 @@ export const useWallet = () => {
 
   const disconnectWallet = async () => {
     try {
-      const window = globalThis.window as PhantomWindow;
-      if (window.phantom?.solana) {
-        await window.phantom.solana.disconnect();
-        setWalletAddress(null);
-
-        // Force a clean disconnect state
-        if (window.phantom.solana.isConnected) {
-          await window.phantom.solana.disconnect();
-        }
+      if (provider) {
+        await provider.disconnect();
+        setWalletAddress("");
+        localStorage.removeItem("walletConnected");
       }
     } catch (error) {
       console.error("Error disconnecting wallet:", error);
-      // Even on error, reset the local state
-      setWalletAddress(null);
     }
   };
-
-  // Listen for wallet connection changes
-  useEffect(() => {
-    const window = globalThis.window as PhantomWindow;
-    if (window.phantom?.solana) {
-      const handleConnect = (publicKey: { toString(): string }) => {
-        setWalletAddress(publicKey.toString());
-      };
-
-      const handleDisconnect = () => {
-        setWalletAddress(null);
-      };
-
-      window.phantom.solana.on("connect", handleConnect);
-      window.phantom.solana.on("disconnect", handleDisconnect);
-
-      // Cleanup listeners on unmount
-      return () => {
-        if (window.phantom?.solana) {
-          window.phantom.solana.removeAllListeners("connect");
-          window.phantom.solana.removeAllListeners("disconnect");
-        }
-      };
-    }
-  }, []);
 
   return {
     walletAddress,
     connecting,
     connectWallet,
     disconnectWallet,
+    provider,
   };
 };
