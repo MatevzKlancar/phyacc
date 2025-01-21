@@ -11,6 +11,7 @@ import { ProjectSubmissionModal } from "../components/ProjectSubmissionModal";
 import { CONSTANTS } from "../lib/solana/constants";
 import { ProjectMilestones } from "../components/ProjectMilestones";
 import { Copy } from "lucide-react";
+import { ProjectDetails } from "../components/ProjectDetails";
 
 interface ProjectWithFunding extends Project {
   balance?: number;
@@ -20,6 +21,7 @@ interface ProjectWithFunding extends Project {
 export default function LaunchpadPage() {
   const [projects, setProjects] = useState<ProjectWithFunding[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showLoading, setShowLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { walletAddress, connecting, connectWallet, disconnectWallet } =
     useWallet();
@@ -33,6 +35,8 @@ export default function LaunchpadPage() {
   const [connection] = useState(
     new Connection(process.env.NEXT_PUBLIC_SOLANA_RPC_URL || "")
   );
+  const [selectedProject, setSelectedProject] =
+    useState<ProjectWithFunding | null>(null);
 
   const loadProjects = async () => {
     try {
@@ -67,10 +71,18 @@ export default function LaunchpadPage() {
 
   useEffect(() => {
     loadProjects();
+    // Show loading animation for exactly 3 seconds
+    const timer = setTimeout(() => {
+      setShowLoading(false);
+    }, 3000);
 
     // Refresh every 30 seconds
     const interval = setInterval(loadProjects, 30000);
-    return () => clearInterval(interval);
+
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timer); // Clean up timer
+    };
   }, []);
 
   const handleProjectSubmitted = () => {
@@ -118,7 +130,20 @@ export default function LaunchpadPage() {
     }
   };
 
-  if (loading) return <div>Loading...</div>;
+  const handleProjectClick = (project: ProjectWithFunding) => {
+    setSelectedProject(project);
+  };
+
+  if (showLoading)
+    return (
+      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+        <img
+          src="/loading-animation-desktop.gif"
+          alt="Loading..."
+          className="object-contain"
+        />
+      </div>
+    );
 
   return (
     <main className="min-h-screen bg-[#0a0a0a] text-white">
@@ -213,121 +238,135 @@ export default function LaunchpadPage() {
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex gap-8">
-          {/* Projects List */}
-          <div className="flex-1 space-y-6">
-            {projects.map((project) => (
-              <div
-                key={project.id}
-                className="bg-gray-900/80 border border-gray-800 rounded-lg p-6 flex flex-col gap-6"
-              >
-                <div className="w-48 h-32 bg-gray-800 rounded-lg overflow-hidden">
-                  {project.image_url && (
-                    <img
-                      src={project.image_url}
-                      alt={project.title}
-                      className="w-full h-full object-cover"
-                    />
-                  )}
-                </div>
-                <div className="flex-1">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h2 className="text-xl font-semibold">{project.title}</h2>
-                      <p className="text-gray-400">{project.description}</p>
-                    </div>
-                    <div className="text-gray-400">12 days left</div>
+      {selectedProject ? (
+        <>
+          <button
+            onClick={() => setSelectedProject(null)}
+            className="ml-4 mt-4 text-gray-400 hover:text-white"
+          >
+            ← Back to projects
+          </button>
+          <ProjectDetails project={selectedProject} />
+        </>
+      ) : (
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex gap-8">
+            <div className="flex-1 space-y-6">
+              {projects.map((project) => (
+                <div
+                  key={project.id}
+                  onClick={() => handleProjectClick(project)}
+                  className="bg-gray-900/80 border border-gray-800 rounded-lg p-6 flex flex-col gap-6 cursor-pointer hover:border-gray-700 transition-colors"
+                >
+                  <div className="w-48 h-32 bg-gray-800 rounded-lg overflow-hidden">
+                    {project.image_url && (
+                      <img
+                        src={project.image_url}
+                        alt={project.title}
+                        className="w-full h-full object-cover"
+                      />
+                    )}
                   </div>
-                  <div className="mt-4">
-                    <div className="flex justify-between mb-2">
-                      <span>{project.balance?.toFixed(2)} SOL raised</span>
-                      <span>
-                        {project.fundingPercentage?.toFixed(1)}% funded
-                      </span>
+                  <div className="flex-1">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h2 className="text-xl font-semibold">
+                          {project.title}
+                        </h2>
+                        <p className="text-gray-400">{project.description}</p>
+                      </div>
+                      <div className="text-gray-400">12 days left</div>
                     </div>
-                    <div className="w-full bg-gray-700 rounded-full h-2.5">
-                      <div
-                        className="bg-cyan-600 h-2.5 rounded-full"
-                        style={{ width: `${project.fundingPercentage}%` }}
-                      ></div>
+                    <div className="mt-4">
+                      <div className="flex justify-between mb-2">
+                        <span>{project.balance?.toFixed(2)} SOL raised</span>
+                        <span>
+                          {project.fundingPercentage?.toFixed(1)}% funded
+                        </span>
+                      </div>
+                      <div className="w-full bg-gray-700 rounded-full h-2.5">
+                        <div
+                          className="bg-cyan-600 h-2.5 rounded-full"
+                          style={{ width: `${project.fundingPercentage}%` }}
+                        ></div>
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Wallet Address Display */}
-                  <div className="flex flex-col gap-2">
-                    <p className="text-sm text-gray-400">
-                      Project Wallet Address:
-                    </p>
-                    <div className="flex items-center gap-2 bg-gray-800 p-3 rounded-lg">
-                      <code className="text-sm text-gray-300 flex-1 overflow-x-auto">
-                        {project.wallet_address}
-                      </code>
-                      <button
-                        onClick={() => copyToClipboard(project.wallet_address)}
-                        className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
-                        title="Copy wallet address"
-                      >
-                        <Copy className="w-4 h-4" />
-                      </button>
+                    {/* Wallet Address Display */}
+                    <div className="flex flex-col gap-2">
+                      <p className="text-sm text-gray-400">
+                        Project Wallet Address:
+                      </p>
+                      <div className="flex items-center gap-2 bg-gray-800 p-3 rounded-lg">
+                        <code className="text-sm text-gray-300 flex-1 overflow-x-auto">
+                          {project.wallet_address}
+                        </code>
+                        <button
+                          onClick={() =>
+                            copyToClipboard(project.wallet_address)
+                          }
+                          className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
+                          title="Copy wallet address"
+                        >
+                          <Copy className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
-                  </div>
 
-                  <button className="mt-2 bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg transition-colors">
-                    Back this project
-                  </button>
+                    <button className="mt-2 bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg transition-colors">
+                      Back this project
+                    </button>
+                  </div>
+                  <ProjectMilestones
+                    projectId={project.id}
+                    creatorWallet={project.creator_wallet}
+                    currentWallet={walletAddress}
+                    milestones={project.milestones || []}
+                    onMilestoneCompleted={loadProjects}
+                  />
                 </div>
-                <ProjectMilestones
-                  projectId={project.id}
-                  creatorWallet={project.creator_wallet}
-                  currentWallet={walletAddress}
-                  milestones={project.milestones || []}
-                  onMilestoneCompleted={loadProjects}
+              ))}
+            </div>
+
+            <div className="w-80 space-y-6">
+              <div className="bg-gray-900/80 border border-gray-800 rounded-lg p-4">
+                <input
+                  type="text"
+                  placeholder="Search projects"
+                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2"
                 />
               </div>
-            ))}
-          </div>
-
-          {/* Sidebar */}
-          <div className="w-80 space-y-6">
-            <div className="bg-gray-900/80 border border-gray-800 rounded-lg p-4">
-              <input
-                type="text"
-                placeholder="Search projects"
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2"
-              />
-            </div>
-            <div className="bg-gray-900/80 border border-gray-800 rounded-lg p-4">
-              <h3 className="font-semibold mb-3">Sort by</h3>
-              <div className="space-y-2">
-                <label className="flex items-center gap-2">
-                  <input type="radio" name="sort" defaultChecked />
-                  <span>Trending</span>
-                </label>
-                <label className="flex items-center gap-2">
-                  <input type="radio" name="sort" />
-                  <span>New</span>
-                </label>
-                <label className="flex items-center gap-2">
-                  <input type="radio" name="sort" />
-                  <span>Top rated</span>
-                </label>
-                <label className="flex items-center gap-2">
-                  <input type="radio" name="sort" />
-                  <span>Most raised</span>
-                </label>
+              <div className="bg-gray-900/80 border border-gray-800 rounded-lg p-4">
+                <h3 className="font-semibold mb-3">Sort by</h3>
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2">
+                    <input type="radio" name="sort" defaultChecked />
+                    <span>Trending</span>
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <input type="radio" name="sort" />
+                    <span>New</span>
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <input type="radio" name="sort" />
+                    <span>Top rated</span>
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <input type="radio" name="sort" />
+                    <span>Most raised</span>
+                  </label>
+                </div>
               </div>
-            </div>
-            <div className="bg-gray-900/80 border border-gray-800 rounded-lg p-4">
-              <h3 className="font-semibold mb-3">Category</h3>
-              <select className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2">
-                <option>Select a category</option>
-              </select>
+              <div className="bg-gray-900/80 border border-gray-800 rounded-lg p-4">
+                <h3 className="font-semibold mb-3">Category</h3>
+                <select className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2">
+                  <option>Select a category</option>
+                </select>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
     </main>
   );
 }
