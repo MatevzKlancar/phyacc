@@ -16,6 +16,7 @@
     "@solana/spl-token": "^0.4.9",
     "@solana/web3.js": "^1.98.0",
     "@supabase/supabase-js": "^2.47.15",
+    "dotenv": "^16.4.7",
     "framer-motion": "^11.18.0",
     "lucide-react": "^0.471.0",
     "next": "15.1.4",

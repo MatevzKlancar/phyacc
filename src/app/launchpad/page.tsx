@@ -1,16 +1,24 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Connection, PublicKey } from "@solana/web3.js";
 import { projectsService } from "../lib/supabase";
-import { Project } from "../lib/supabase";
+import type { Project } from "../lib/supabase";
 
 import { useWallet } from "../lib/hooks/useWallet";
 import { useWalletEligibility } from "../lib/hooks/useWalletEligibility";
 import { ProjectSubmissionModal } from "../components/ProjectSubmissionModal";
 import { CONSTANTS } from "../lib/solana/constants";
+import { ProjectMilestones } from "../components/ProjectMilestones";
+import { Copy } from "lucide-react";
+
+interface ProjectWithFunding extends Project {
+  balance?: number;
+  fundingPercentage?: number;
+}
 
 export default function LaunchpadPage() {
-  const [projects, setProjects] = useState<Project[]>([]);
+  const [projects, setProjects] = useState<ProjectWithFunding[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { walletAddress, connecting, connectWallet, disconnectWallet } =
@@ -22,11 +30,34 @@ export default function LaunchpadPage() {
     loading: checkingEligibility,
     error: eligibilityError,
   } = useWalletEligibility(walletAddress);
+  const [connection] = useState(
+    new Connection(process.env.NEXT_PUBLIC_SOLANA_RPC_URL || "")
+  );
 
   const loadProjects = async () => {
     try {
-      const data = await projectsService.getAllProjects();
-      setProjects(data);
+      const fetchedProjects = await projectsService.getAllProjects();
+
+      // Batch all balance requests together
+      const publicKeys = fetchedProjects.map(
+        (project) => new PublicKey(project.wallet_address)
+      );
+
+      // Get all balances in a single RPC call
+      const balances = await connection.getMultipleAccountsInfo(publicKeys);
+
+      const projectsWithFunding = fetchedProjects.map((project, index) => {
+        const balance = (balances[index]?.lamports || 0) / 1e9; // Convert lamports to SOL
+        const fundingPercentage = (balance / project.funding_goal) * 100;
+
+        return {
+          ...project,
+          balance,
+          fundingPercentage: Math.min(fundingPercentage, 100), // Cap at 100%
+        };
+      });
+
+      setProjects(projectsWithFunding);
     } catch (error) {
       console.error("Error loading projects:", error);
     } finally {
@@ -36,6 +67,10 @@ export default function LaunchpadPage() {
 
   useEffect(() => {
     loadProjects();
+
+    // Refresh every 30 seconds
+    const interval = setInterval(loadProjects, 30000);
+    return () => clearInterval(interval);
   }, []);
 
   const handleProjectSubmitted = () => {
@@ -71,6 +106,15 @@ export default function LaunchpadPage() {
       await disconnectWallet();
     } else {
       await connectWallet();
+    }
+  };
+
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      alert("Wallet address copied to clipboard!");
+    } catch (err) {
+      console.error("Failed to copy text: ", err);
     }
   };
 
@@ -177,7 +221,7 @@ export default function LaunchpadPage() {
             {projects.map((project) => (
               <div
                 key={project.id}
-                className="bg-gray-900/80 border border-gray-800 rounded-lg p-6 flex gap-6"
+                className="bg-gray-900/80 border border-gray-800 rounded-lg p-6 flex flex-col gap-6"
               >
                 <div className="w-48 h-32 bg-gray-800 rounded-lg overflow-hidden">
                   {project.image_url && (
@@ -198,17 +242,49 @@ export default function LaunchpadPage() {
                   </div>
                   <div className="mt-4">
                     <div className="flex justify-between mb-2">
-                      <span>{project.funding_goal} SOL raised</span>
-                      <span>69% funded</span>
+                      <span>{project.balance?.toFixed(2)} SOL raised</span>
+                      <span>
+                        {project.fundingPercentage?.toFixed(1)}% funded
+                      </span>
                     </div>
-                    <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
-                      <div className="h-full w-[69%] bg-cyan-500"></div>
+                    <div className="w-full bg-gray-700 rounded-full h-2.5">
+                      <div
+                        className="bg-cyan-600 h-2.5 rounded-full"
+                        style={{ width: `${project.fundingPercentage}%` }}
+                      ></div>
                     </div>
                   </div>
-                  <button className="mt-4 bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg transition-colors">
+
+                  {/* Wallet Address Display */}
+                  <div className="flex flex-col gap-2">
+                    <p className="text-sm text-gray-400">
+                      Project Wallet Address:
+                    </p>
+                    <div className="flex items-center gap-2 bg-gray-800 p-3 rounded-lg">
+                      <code className="text-sm text-gray-300 flex-1 overflow-x-auto">
+                        {project.wallet_address}
+                      </code>
+                      <button
+                        onClick={() => copyToClipboard(project.wallet_address)}
+                        className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
+                        title="Copy wallet address"
+                      >
+                        <Copy className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+
+                  <button className="mt-2 bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg transition-colors">
                     Back this project
                   </button>
                 </div>
+                <ProjectMilestones
+                  projectId={project.id}
+                  creatorWallet={project.creator_wallet}
+                  currentWallet={walletAddress}
+                  milestones={project.milestones || []}
+                  onMilestoneCompleted={loadProjects}
+                />
               </div>
             ))}
           </div>
