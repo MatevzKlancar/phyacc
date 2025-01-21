@@ -25,6 +25,13 @@ const getProvider = (): PhantomProvider | undefined => {
   return undefined;
 };
 
+// Helper to detect if we're on mobile
+const isMobile = (): boolean => {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+    navigator.userAgent
+  );
+};
+
 export const useWallet = () => {
   const [walletAddress, setWalletAddress] = useState<string>("");
   const [provider, setProvider] = useState<PhantomProvider | undefined>(
@@ -75,12 +82,22 @@ export const useWallet = () => {
   const connectWallet = async () => {
     try {
       setConnecting(true);
-      if (!provider) {
+
+      // If on mobile and no provider, redirect to Phantom
+      if (isMobile() && !provider) {
+        // Using universal link
+        window.location.href =
+          "https://phantom.app/ul/browse/" + window.location.href;
+        return;
+      }
+
+      // If on desktop and no provider, open download page
+      if (!isMobile() && !provider) {
         window.open("https://phantom.app/", "_blank");
         return;
       }
 
-      await provider.connect();
+      await provider?.connect();
       localStorage.setItem("walletConnected", "true");
     } catch (error) {
       console.error("Error connecting to wallet:", error);
