@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { projectsService } from "../../lib/supabase";
-import { CONSTANTS } from "../../lib/solana/constants";
 import { X } from "lucide-react";
-import { storageService } from "../../lib/supabase";
+import { storageService } from "@/app/lib/supabase";
+import { CONSTANTS } from "@/app/lib/solana/constants";
+import { projectsService } from "@/app/lib/supabase";
 
 interface ProjectSubmissionFormProps {
   walletAddress: string | null;

@@ -7,13 +7,11 @@ import type { Project } from "../lib/supabase";
 
 import { useWallet } from "../lib/hooks/useWallet";
 import { useWalletEligibility } from "../lib/hooks/useWalletEligibility";
-import { ProjectSubmissionModal } from "../components/launchpad/ProjectSubmissionModal";
 import { CONSTANTS } from "../lib/solana/constants";
-import { ProjectMilestones } from "../components/launchpad/ProjectMilestones";
 import { Copy } from "lucide-react";
-import { Pill } from "../components/launchpad/components/pill";
 import Link from "next/link";
-import { TopBarButton } from "../components/launchpad/components/topbarbutton";
+import { ProjectSubmissionModal } from "@/componentsxd/launchpad/ProjectSubmissionModal";
+import { ProjectMilestones } from "@/componentsxd/launchpad/ProjectMilestones";
 
 interface ProjectWithFunding extends Project {
   balance?: number;

@@ -1,6 +1,6 @@
-import { CONSTANTS } from "../../../lib/solana/constants";
 import Image from "next/image";
-import phantomLogo from "../../../../../public/phantom.jpeg";
+import phantomLogo from "../../../../public/phantom.jpeg";
+import { CONSTANTS } from "@/app/lib/solana/constants";
 
 interface TopBarButtonProps {
   walletAddress: string | null;

@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    .launchpadv2-layout {
+      font-family: var(--font-jura);
+    }
+  }

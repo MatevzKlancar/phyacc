@@ -1,6 +1,6 @@
+import { ProjectMilestone, projectsService } from "@/app/lib/supabase";
 import { useState } from "react";
-import { projectsService } from "../../lib/supabase";
-import type { ProjectMilestone } from "../../lib/supabase/types";
+
 
 interface ProjectMilestonesProps {
   projectId: string;
