@@ -5,8 +5,7 @@ import { useEffect, useState } from "react";
 import { Connection, PublicKey } from "@solana/web3.js";
 import { useParams } from "next/navigation";
 import { projectsService } from "@/app/lib/supabase/services/projects";
-import { ProjectDetails } from "@/app/components/launchpad/ProjectDetails";
-
+import { ProjectDetails } from "@/componentsxd/launchpad/ProjectDetails";
 export default function ProjectDetailPage() {
   const params = useParams();
   const [project, setProject] = useState<any>(null);

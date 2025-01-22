@@ -5,8 +5,8 @@ import { useState } from "react";
 import { useWallet } from "../lib/hooks/useWallet";
 import { useWalletEligibility } from "../lib/hooks/useWalletEligibility";
 import { CONSTANTS } from "../lib/solana/constants";
-import { Pill } from "../components/launchpad/components/pill";
-import { TopBarButton } from "../components/launchpad/components/topbarbutton";
+import { TopBarButton } from "@/componentsxd/launchpad/components/topbarbutton";
+import { Pill } from "@/componentsxd/launchpad/components/pill";
 import { usePathname } from "next/navigation";
 
 const jura = Jura({

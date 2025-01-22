@@ -1,6 +1,6 @@
 // components/ProjectUpdates.tsx
+import { ProjectUpdate, projectsService } from "@/app/lib/supabase";
 import { useState } from "react";
-import { projectsService, ProjectUpdate } from "../../lib/supabase";
 
 interface ProjectUpdateProps {
   projectId: string;
