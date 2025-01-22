@@ -25,21 +25,21 @@ export function ProjectCard({ project }: ProjectCardProps) {
   }
 
   return (
-    <Link href={`/launchpadv2/project/${project.id}`}>
-      <Card className="border-zinc-800 hover:border-zinc-700 transition-colors h-full flex flex-col md:w-[900px] lg:w-[1000px]">
-        <CardHeader className="p-0">
+    <Link href={`/launchpadv2/project/${project.id}`} className="w-[300px]">
+      <Card className="border-t border-zinc-800 rounded-t-lg hover:border-zinc-700 transition-colors h-full flex flex-col w-[88%] hover:shadow-lg hover:shadow-zinc-500/50 rounded-t-lg"> {/* Set width to 88%, add glowing effect on hover, and rounded top corners */}
+        <CardHeader className="p-0 rounded-t-lg">
           <img
-            src={project.image_url || "/placeholder.svg"}
+            src={project.image_url || "@robotai.png"}
             alt={project.title}
-            className="w-full h-32 object-cover rounded-t-lg"
+            className="h-32 w-128 object-cover"
           />
         </CardHeader>
         <CardContent className="p-4 flex-1 flex flex-col">
           <div className="flex-1">
-            <h2 className="text-lg md:text-xl font-semibold mb-2 line-clamp-2">
+            <h2 className="text-lg md:text-xl font-semibold mb-2 line-clamp-2 overflow-hidden text-ellipsis whitespace-nowrap">
               {project.title}
             </h2>
-            <p className="text-zinc-400 text-sm md:text-base mb-4 line-clamp-2">
+            <p className="text-zinc-400 text-sm md:text-base mb-4 line-clamp-2 overflow-hidden text-ellipsis whitespace-nowrap">
               {project.description}
             </p>
           </div>
@@ -74,4 +74,3 @@ export function ProjectCard({ project }: ProjectCardProps) {
     </Link>
   )
 }
-

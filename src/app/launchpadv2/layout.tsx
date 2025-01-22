@@ -2,6 +2,7 @@
 
 import { Jura } from "next/font/google"
 import "./styles.css"
+import { motion } from "framer-motion"
 import { ConnectWalletButton } from "@/componentsxd/launchpadv2/connect-wallet-button"
 import { SubmitProjectButton } from "@/componentsxd/launchpadv2/submit-project-button"
 import { useWallet } from "@/app/lib/hooks/useWallet"
@@ -45,13 +46,25 @@ export default function RootLayout({
   }
 
   return (
-    <div className={`${jura.className} bg-black text-white min-h-screen flex flex-col`}>
+    <div className={`${jura.className} bg-black text-white min-h-screen flex flex-col relative`}>
+      <motion.div
+        className="absolute inset-0 z-0"
+        initial={{ opacity: 0 }}
+        animate={{ 
+          opacity: 0.15,
+          transition: { duration: 2 }
+        }}
+        style={{
+          background: 'radial-gradient(circle at 50% 50%, rgba(0, 255, 255, 0.1) 0%, transparent 50%)',
+          filter: 'blur(100px)'
+        }}
+      />
       <nav className={`sticky top-0 z-50 backdrop-blur-sm bg-black/50 border-b border-white/10 ${isNavVisible ? 'block' : 'hidden'}`}>
         <div className="container mx-auto px-4">
           <div className="flex h-16 items-center justify-between">
             <a
               href="/"
-              className="text-xl md:text-2xl font-bold tracking-wider text-white [text-shadow:_0_0_10px_rgb(255_255_255_/_20%)]"
+              className="text-xl md:text-2xl font-black tracking-wider text-white [text-shadow:_0_0_22px_rgb(255_255_255_/_80%),_0_0_60px_rgb(255_255_255/_100%)]"
             >
               PHY/ACC LAUNCHPAD
             </a>
@@ -93,7 +106,7 @@ export default function RootLayout({
           </div>
         </div>
       </nav>
-      <main className="flex-grow">{children}</main>
+      <main className="flex-grow relative z-10">{children}</main>
     </div>
   )
 }

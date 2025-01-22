@@ -15,11 +15,11 @@ const ProjectSubmissionForm = ({ walletAddress, isEligible, onSubmitSuccess }: {
       title: "Project Category",
       component: () => (
         <div className="space-y-4">
-          <Select>
+          <Select >
             <SelectTrigger>
               <SelectValue placeholder="Select a category" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-black">
               <SelectItem value="defi">DeFi</SelectItem>
               <SelectItem value="nft">NFT</SelectItem>
               <SelectItem value="gaming">Gaming</SelectItem>
@@ -29,7 +29,7 @@ const ProjectSubmissionForm = ({ walletAddress, isEligible, onSubmitSuccess }: {
             <SelectTrigger>
               <SelectValue placeholder="Select a subcategory" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-black">
               <SelectItem value="lending">Lending</SelectItem>
               <SelectItem value="dex">DEX</SelectItem>
               <SelectItem value="yield">Yield</SelectItem>

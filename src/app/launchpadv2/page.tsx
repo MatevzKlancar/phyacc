@@ -18,11 +18,52 @@ import { projectsService } from "@/app/lib/supabase"
 import type { Project } from "@/app/lib/supabase"
 import { useWallet } from "@/app/lib/hooks/useWallet"
 import { useWalletEligibility } from "@/app/lib/hooks/useWalletEligibility"
+import { motion } from "framer-motion"
 
 interface ProjectWithFunding extends Project {
   balance?: number
   fundingPercentage?: number
 }
+
+const mockProjects = [
+  {
+    id: "1",
+    title: "Project Alpha",
+    description: "A revolutionary project that aims to change the world.",
+    image_url: "https://t3.ftcdn.net/jpg/05/59/87/12/360_F_559871209_pbXlOVArUal3mk6Ce60JuP13kmuIRCth.jpg",
+    wallet_address: "ABC1234567890DEF1234567890ABC1234567890",
+    funding_goal: 1000,
+    balance: 500,
+    fundingPercentage: 50,
+    creator_wallet: "CREATOR_WALLET_1",
+    created_at: new Date().toISOString(),
+  },
+  {
+    id: "2",
+    title: "Project Beta",
+    description: "I will add AI agent to arduino and he will pass the butter",
+    image_url: "https://t3.ftcdn.net/jpg/05/59/87/12/360_F_559871209_pbXlOVArUal3mk6Ce60JuP13kmuIRCth.jpg",
+    wallet_address: "DEF1234567890ABC1234567890DEF1234567890",
+    funding_goal: 2000,
+    balance: 1500,
+    fundingPercentage: 75,
+    creator_wallet: "CREATOR_WALLET_2",
+    created_at: new Date().toISOString(),
+  },
+  {
+    id: "3",
+    title: "Project Gamma",
+    description: "A community-driven initiative for sustainable energy.",
+    image_url: "https://t3.ftcdn.net/jpg/05/59/87/12/360_F_559871209_pbXlOVArUal3mk6Ce60JuP13kmuIRCth.jpg",
+    wallet_address: "GHI1234567890ABC1234567890GHI1234567890",
+    funding_goal: 3000,
+    balance: 2500,
+    fundingPercentage: 83.33,
+    creator_wallet: "CREATOR_WALLET_3",
+    created_at: new Date().toISOString(),
+  },
+
+];
 
 export default function Home() {
   const [projects, setProjects] = useState<ProjectWithFunding[]>([])
@@ -54,7 +95,8 @@ export default function Home() {
         }
       })
 
-      setProjects(projectsWithFunding)
+      // Combine real projects with mock projects
+      setProjects([...projectsWithFunding, ...mockProjects])
     } catch (error) {
       console.error("Error loading projects:", error)
     } finally {
@@ -73,10 +115,22 @@ export default function Home() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex flex-col lg:flex-row gap-8">
-        <div className="lg:w-3/4">
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+    <div className="container mx-auto px-4 py-8 relative">
+      <motion.div
+        className="absolute inset-0 z-0"
+        initial={{ opacity: 0 }}
+        animate={{ 
+          opacity: 0.15,
+          transition: { duration: 2 }
+        }}
+        style={{
+          background: 'radial-gradient(circle at 50% 50%, rgba(0, 255, 255, 0.1) 0%, transparent 50%)',
+          filter: 'blur(100px)'
+        }}
+      />
+      <div className="flex flex-col lg:flex-row gap-8 relative z-10">
+        <div className="lg:w-3/4 flex flex-col items-start">
+          <div className="flex flex-wrap justify-start gap-4">
             {projects.map((project) => (
               <ProjectCard key={project.id} project={project} />
             ))}
@@ -88,7 +142,7 @@ export default function Home() {
             <SelectTrigger>
               <SelectValue placeholder="Sort by: Trending" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-black">
               <SelectItem value="new">Sort by: New</SelectItem>
               <SelectItem value="top-rated">Sort by: Top rated</SelectItem>
               <SelectItem value="most-raised">Sort by: Most raised</SelectItem>
@@ -98,7 +152,11 @@ export default function Home() {
             <SelectTrigger>
               <SelectValue placeholder="Select a category" />
             </SelectTrigger>
-            <SelectContent>{/* Add categories as needed */}</SelectContent>
+            <SelectContent className="bg-black">
+              <SelectItem value="new">Sort by: New</SelectItem>
+              <SelectItem value="top-rated">Sort by: Top rated</SelectItem>
+              <SelectItem value="most-raised">Sort by: Most raised</SelectItem>
+            </SelectContent>
           </Select>
         </div>
       </div>

@@ -172,16 +172,18 @@ export default function ProjectDetailPage() {
       </div>
 
       {/* Enhanced Sticky Navigation */}
-      <nav className={`w-full transition-all duration-300 ${isSticky ? 'sticky top-0 z-50 bg-black/95 backdrop-blur-sm' : ''}`}>
+      <nav className={`w-full transition-all duration-300 ${
+        isSticky ? 'sticky top-0 left-0 right-0 z-50 bg-black/95 backdrop-blur-sm' : ''
+      }`}>
         <div className="border-b border-zinc-800">
           <div className="container mx-auto">
-            <div className="flex justify-between items-center py-2">
-              <div className="flex">
+            <div className="flex flex-col md:flex-row justify-between items-center py-2 overflow-x-auto">
+              <div className="flex min-w-0">
                 {['Campaign', 'Rewards', 'Roadmap', 'Voting'].map((section) => (
                   <Button
                     key={section}
                     variant="ghost"
-                    className={`relative py-6 px-8 text-base font-medium ${
+                    className={`relative py-6 px-4 md:px-8 text-sm md:text-base font-medium whitespace-nowrap ${
                       activeSection === section.toLowerCase() ? 'text-emerald-400' : 'text-zinc-400'
                     }`}
                     onClick={() => setActiveSection(section.toLowerCase())}
@@ -193,9 +195,12 @@ export default function ProjectDetailPage() {
                   </Button>
                 ))}
               </div>
-              <Button className="bg-emerald-500 hover:bg-emerald-600 py-6 px-8">
-                Back this project
-              </Button>
+              {/* Mobile Back Button */}
+              <div className="mt-2 md:mt-0">
+                <Button className="bg-emerald-500 hover:bg-emerald-600 py-2 px-3 md:py-6 md:px-8">
+                  Back this project
+                </Button>
+              </div>
             </div>
           </div>
         </div>
