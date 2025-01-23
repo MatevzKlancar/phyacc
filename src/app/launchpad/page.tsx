@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { Connection, PublicKey } from "@solana/web3.js"
-import { ProjectCard } from "@/componentsxd/launchpadv2/project-card"
+import { ProjectCard } from "@/components/launchpad/project-card"
 import { Input } from "@/components/ui/input"
 import {
   Select,

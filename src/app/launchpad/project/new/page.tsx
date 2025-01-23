@@ -4,7 +4,7 @@ import { useWallet } from "@/app/lib/hooks/useWallet";
 import { useWalletEligibility } from "@/app/lib/hooks/useWalletEligibility";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import ProjectSubmissionForm from "@/componentsxd/launchpadv2/project-submission-form";
+import ProjectSubmissionForm from "@/components/launchpad/project-submission-form"; 
 
 export default function NewProjectPage() {
   const router = useRouter();

@@ -21,7 +21,7 @@ export function SubmitProjectButton({
 
   return (
     <Button
-      onClick={() => router.push('/launchpadv2/project/new')}
+      onClick={() => router.push('/launchpad/project/new')}
       disabled={!isEligible || checkingEligibility}
       className="bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-2"
     >

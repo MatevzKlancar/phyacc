@@ -25,7 +25,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
   }
 
   return (
-    <Link href={`/launchpadv2/project/${project.id}`} className="w-[300px]">
+    <Link href={`/launchpad/project/${project.id}`} className="w-[300px]">
       <Card className="border-t border-zinc-800 rounded-t-lg hover:border-zinc-700 transition-colors h-full flex flex-col w-[88%] hover:shadow-lg hover:shadow-zinc-500/50 rounded-t-lg"> {/* Set width to 88%, add glowing effect on hover, and rounded top corners */}
         <CardHeader className="p-0 rounded-t-lg">
           <img
