@@ -1,259 +1,178 @@
-"use client";
+"use client"
 
-import { useEffect, useState } from "react";
-import { Connection, PublicKey } from "@solana/web3.js";
-import { projectsService } from "../lib/supabase";
-import type { Project } from "../lib/supabase";
-
-import { useWallet } from "../lib/hooks/useWallet";
-import { useWalletEligibility } from "../lib/hooks/useWalletEligibility";
-import { CONSTANTS } from "../lib/solana/constants";
-import { Copy } from "lucide-react";
-import Link from "next/link";
-import { ProjectSubmissionModal } from "@/componentsxd/launchpad/ProjectSubmissionModal";
-import { ProjectMilestones } from "@/componentsxd/launchpad/ProjectMilestones";
+import { useEffect, useState } from "react"
+import { Connection, PublicKey } from "@solana/web3.js"
+import { ProjectCard } from "@/componentsxd/launchpadv2/project-card"
+import { Input } from "@/components/ui/input"
+import {
+  Select,
+  SelectGroup,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectLabel,
+  SelectItem,
+  SelectSeparator,
+} from "@/components/ui/select"
+import { projectsService } from "@/app/lib/supabase"
+import type { Project } from "@/app/lib/supabase"
+import { useWallet } from "@/app/lib/hooks/useWallet"
+import { useWalletEligibility } from "@/app/lib/hooks/useWalletEligibility"
+import { motion } from "framer-motion"
+import { Button } from "@/components/ui/button"
+import Link from "next/link"
+import { Info } from "lucide-react"
 
 interface ProjectWithFunding extends Project {
-  balance?: number;
-  fundingPercentage?: number;
+  balance?: number
+  fundingPercentage?: number
 }
 
-export default function LaunchpadPage() {
-  const [projects, setProjects] = useState<ProjectWithFunding[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [showLoading, setShowLoading] = useState(true);
-  const { walletAddress, connecting, connectWallet, disconnectWallet } =
-    useWallet();
-  const {
-    isEligible,
-    solBalance,
-    tokenBalance,
-    loading: checkingEligibility,
-    error: eligibilityError,
-  } = useWalletEligibility(walletAddress);
+const mockProjects = [
+  {
+    id: "1",
+    title: "Project Alpha",
+    description: "A revolutionary project that aims to change the world.",
+    image_url: "https://t3.ftcdn.net/jpg/05/59/87/12/360_F_559871209_pbXlOVArUal3mk6Ce60JuP13kmuIRCth.jpg",
+    wallet_address: "ABC1234567890DEF1234567890ABC1234567890",
+    funding_goal: 1000,
+    balance: 500,
+    fundingPercentage: 50,
+    creator_wallet: "CREATOR_WALLET_1",
+    created_at: new Date().toISOString(),
+  },
+  {
+    id: "2",
+    title: "Project Beta",
+    description: "I will add AI agent to arduino and he will pass the butter",
+    image_url: "https://t3.ftcdn.net/jpg/05/59/87/12/360_F_559871209_pbXlOVArUal3mk6Ce60JuP13kmuIRCth.jpg",
+    wallet_address: "DEF1234567890ABC1234567890DEF1234567890",
+    funding_goal: 2000,
+    balance: 1500,
+    fundingPercentage: 75,
+    creator_wallet: "CREATOR_WALLET_2",
+    created_at: new Date().toISOString(),
+  },
+  {
+    id: "3",
+    title: "Project Gamma",
+    description: "A community-driven initiative for sustainable energy.",
+    image_url: "https://t3.ftcdn.net/jpg/05/59/87/12/360_F_559871209_pbXlOVArUal3mk6Ce60JuP13kmuIRCth.jpg",
+    wallet_address: "GHI1234567890ABC1234567890GHI1234567890",
+    funding_goal: 3000,
+    balance: 2500,
+    fundingPercentage: 83.33,
+    creator_wallet: "CREATOR_WALLET_3",
+    created_at: new Date().toISOString(),
+  },
+
+];
+
+export default function Home() {
+  const [projects, setProjects] = useState<ProjectWithFunding[]>([])
+  const [loading, setLoading] = useState(true)
+  const { walletAddress } = useWallet()
+  const { isEligible } = useWalletEligibility(walletAddress)
   const [connection] = useState(
     new Connection(process.env.NEXT_PUBLIC_SOLANA_RPC_URL || "")
-  );
+  )
 
   const loadProjects = async () => {
     try {
-      const fetchedProjects = await projectsService.getAllProjects();
-
-      // Batch all balance requests together
+      const fetchedProjects = await projectsService.getAllProjects()
+      
       const publicKeys = fetchedProjects.map(
         (project) => new PublicKey(project.wallet_address)
-      );
+      )
 
-      // Get all balances in a single RPC call
-      const balances = await connection.getMultipleAccountsInfo(publicKeys);
+      const balances = await connection.getMultipleAccountsInfo(publicKeys)
 
       const projectsWithFunding = fetchedProjects.map((project, index) => {
-        const balance = (balances[index]?.lamports || 0) / 1e9; // Convert lamports to SOL
-        const fundingPercentage = (balance / project.funding_goal) * 100;
+        const balance = (balances[index]?.lamports || 0) / 1e9
+        const fundingPercentage = (balance / project.funding_goal) * 100
 
         return {
           ...project,
           balance,
-          fundingPercentage: Math.min(fundingPercentage, 100), // Cap at 100%
-        };
-      });
+          fundingPercentage: Math.min(fundingPercentage, 100),
+        }
+      })
 
-      setProjects(projectsWithFunding);
+      // Combine real projects with mock projects
+      setProjects([...projectsWithFunding, ...mockProjects])
     } catch (error) {
-      console.error("Error loading projects:", error);
+      console.error("Error loading projects:", error)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   useEffect(() => {
-    loadProjects();
-    // Show loading animation for exactly 3 seconds
-    const timer = setTimeout(() => {
-      setShowLoading(false);
-    }, 3000);
+    loadProjects()
+    const interval = setInterval(loadProjects, 30000)
+    return () => clearInterval(interval)
+  }, [])
 
-    // Refresh every 30 seconds
-    const interval = setInterval(loadProjects, 30000);
-
-    return () => {
-      clearInterval(interval);
-      clearTimeout(timer); // Clean up timer
-    };
-  }, []);
-
-  const handleProjectSubmitted = () => {
-    loadProjects();
-  };
-
-  const copyToClipboard = async (text: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      alert("Wallet address copied to clipboard!");
-    } catch (err) {
-      console.error("Failed to copy text: ", err);
-    }
-  };
+  if (loading) {
+    return <div className="container mx-auto px-4 py-8">Loading...</div>
+  }
 
   return (
-    <main className="launchpad-page">
-      <ProjectSubmissionModal
-        isOpen={false}
-        onClose={() => {}}
-        onSubmitSuccess={handleProjectSubmitted}
-        walletAddress={walletAddress}
-        isEligible={isEligible}
+    <div className="container mx-auto px-4 py-8 relative">
+      <motion.div
+        className="absolute inset-0 z-0"
+        initial={{ opacity: 0 }}
+        animate={{ 
+          opacity: 0.15,
+          transition: { duration: 2 }
+        }}
+        style={{
+          background: 'radial-gradient(circle at 50% 50%, rgba(0, 255, 255, 0.1) 0%, transparent 50%)',
+          filter: 'blur(100px)'
+        }}
       />
-
-      {/* Main content area */}
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Sidebar for mobile */}
-          <div className="lg:hidden space-y-4 mb-6">
-            <div className="bg-gray-900/80 border border-gray-800 rounded-lg p-4">
-              <input
-                type="text"
-                placeholder="Search projects"
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2"
-              />
-            </div>
-            <div className="bg-gray-900/80 border border-gray-800 rounded-lg p-4">
-              <select className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2">
-                <option>Sort by: Trending</option>
-                <option>Sort by: New</option>
-                <option>Sort by: Top rated</option>
-                <option>Sort by: Most raised</option>
-              </select>
-            </div>
-            <div className="bg-gray-900/80 border border-gray-800 rounded-lg p-4">
-              <select className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2">
-                <option>Select a category</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Projects Grid */}
-          <div className="flex-1 space-y-6">
+      <div className="flex flex-col lg:flex-row gap-8 relative z-10">
+        <div className="lg:w-3/4 flex flex-col items-start">
+          <div className="flex flex-wrap justify-start gap-4">
             {projects.map((project) => (
-              <Link
-                key={project.id}
-                href={`/launchpad/project/${project.id}`}
-                className="block"
-              >
-                <div className="bg-gray-900/80 border border-gray-800 rounded-lg p-4 md:p-6 flex flex-col md:flex-row gap-4 md:gap-6 cursor-pointer hover:border-gray-700 transition-colors">
-                  <div className="w-full md:w-48 h-48 md:h-32 bg-gray-800 rounded-lg overflow-hidden">
-                    {project.image_url && (
-                      <img
-                        src={project.image_url}
-                        alt={project.title}
-                        className="w-full h-full object-cover"
-                      />
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex flex-col md:flex-row justify-between items-start gap-2">
-                      <div>
-                        <h2 className="text-xl font-semibold">
-                          {project.title}
-                        </h2>
-                        <p className="text-gray-400 text-sm md:text-base">
-                          {project.description}
-                        </p>
-                      </div>
-                      <div className="text-gray-400 text-sm">12 days left</div>
-                    </div>
-                    <div className="mt-4">
-                      <div className="flex justify-between mb-2">
-                        <span>{project.balance?.toFixed(2)} SOL raised</span>
-                        <span>
-                          {project.fundingPercentage?.toFixed(1)}% funded
-                        </span>
-                      </div>
-                      <div className="w-full bg-gray-700 rounded-full h-2.5">
-                        <div
-                          className="bg-cyan-600 h-2.5 rounded-full"
-                          style={{ width: `${project.fundingPercentage}%` }}
-                        ></div>
-                      </div>
-                    </div>
-
-                    {/* Wallet Address Display */}
-                    <div className="flex flex-col gap-2">
-                      <p className="text-sm text-gray-400">
-                        Project Wallet Address:
-                      </p>
-                      <div className="flex items-center gap-2 bg-gray-800 p-3 rounded-lg">
-                        <code className="text-sm text-gray-300 flex-1 overflow-x-auto">
-                          {project.wallet_address}
-                        </code>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            copyToClipboard(project.wallet_address);
-                          }}
-                          className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
-                          title="Copy wallet address"
-                        >
-                          <Copy className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-
-                    <button className="mt-2 bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg transition-colors">
-                      Back this project
-                    </button>
-                  </div>
-                  <ProjectMilestones
-                    projectId={project.id}
-                    creatorWallet={project.creator_wallet}
-                    currentWallet={walletAddress}
-                    milestones={project.milestones || []}
-                    onMilestoneCompleted={loadProjects}
-                  />
-                </div>
-              </Link>
+              <ProjectCard key={project.id} project={project} />
             ))}
           </div>
-
-          {/* Desktop Sidebar */}
-          <div className="hidden lg:block w-80 space-y-6">
-            <div className="bg-gray-900/80 border border-gray-800 rounded-lg p-4">
-              <input
-                type="text"
-                placeholder="Search projects"
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2"
-              />
-            </div>
-            <div className="bg-gray-900/80 border border-gray-800 rounded-lg p-4">
-              <h3 className="font-semibold mb-3">Sort by</h3>
-              <div className="space-y-2">
-                <label className="flex items-center gap-2">
-                  <input type="radio" name="sort" defaultChecked />
-                  <span>Trending</span>
-                </label>
-                <label className="flex items-center gap-2">
-                  <input type="radio" name="sort" />
-                  <span>New</span>
-                </label>
-                <label className="flex items-center gap-2">
-                  <input type="radio" name="sort" />
-                  <span>Top rated</span>
-                </label>
-                <label className="flex items-center gap-2">
-                  <input type="radio" name="sort" />
-                  <span>Most raised</span>
-                </label>
-              </div>
-            </div>
-            <div className="bg-gray-900/80 border border-gray-800 rounded-lg p-4">
-              <h3 className="font-semibold mb-3">Category</h3>
-              <select className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2">
-                <option>Select a category</option>
-              </select>
-            </div>
-          </div>
+        </div>
+        <div className="lg:w-1/4 space-y-6">
+          <Input type="text" placeholder="Search projects" />
+          <Select>
+            <SelectTrigger>
+              <SelectValue placeholder="Sort by: Trending" />
+            </SelectTrigger>
+            <SelectContent className="bg-black">
+              <SelectItem value="new">Sort by: New</SelectItem>
+              <SelectItem value="top-rated">Sort by: Top rated</SelectItem>
+              <SelectItem value="most-raised">Sort by: Most raised</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select>
+            <SelectTrigger>
+              <SelectValue placeholder="Select a category" />
+            </SelectTrigger>
+            <SelectContent className="bg-black">
+              <SelectItem value="new">Sort by: New</SelectItem>
+              <SelectItem value="top-rated">Sort by: Top rated</SelectItem>
+              <SelectItem value="most-raised">Sort by: Most raised</SelectItem>
+            </SelectContent>
+          </Select>
+          
+          <Link href="/launchpad/info">
+            <Button 
+              className="w-full bg-yellow-400 hover:bg-yellow-500 text-black flex items-center justify-center gap-2 mt-4"
+            >
+              <Info className="w-4 h-4" />
+              Platform Information
+            </Button>
+          </Link>
         </div>
       </div>
-    </main>
-  );
+    </div>
+  )
 }
+

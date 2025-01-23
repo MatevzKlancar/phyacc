@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
+import { Rocket } from "lucide-react"
 
 interface SubmitProjectButtonProps {
   walletAddress: string | null
@@ -22,8 +23,9 @@ export function SubmitProjectButton({
     <Button
       onClick={() => router.push('/launchpadv2/project/new')}
       disabled={!isEligible || checkingEligibility}
-      className="px-2 md:px-4 py-1.5 md:py-2 text-xs md:text-sm bg-gray-800 hover:bg-gray-700 text-white transition-colors"
+      className="bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-2"
     >
+      <Rocket className="w-4 h-4" />
       {checkingEligibility ? "Checking..." : "Submit project"}
     </Button>
   )

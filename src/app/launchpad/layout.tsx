@@ -1,110 +1,113 @@
-"use client";
+"use client"
 
-import { Jura } from "next/font/google";
-import { useState } from "react";
-import { useWallet } from "../lib/hooks/useWallet";
-import { useWalletEligibility } from "../lib/hooks/useWalletEligibility";
-import { CONSTANTS } from "../lib/solana/constants";
-import { TopBarButton } from "@/componentsxd/launchpad/components/topbarbutton";
-import { Pill } from "@/componentsxd/launchpad/components/pill";
-import { usePathname } from "next/navigation";
+import { Jura } from "next/font/google"
+import "./styles.css"
+import { motion } from "framer-motion"
+import { ConnectWalletButton } from "@/componentsxd/launchpadv2/connect-wallet-button"
+import { SubmitProjectButton } from "@/componentsxd/launchpadv2/submit-project-button"
+import { useWallet } from "@/app/lib/hooks/useWallet"
+import { useWalletEligibility } from "@/app/lib/hooks/useWalletEligibility"
+import { Button } from "@/components/ui/button"
+import { useEffect, useState } from "react"
 
 const jura = Jura({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
-});
+  variable: "--font-jura",
+})
 
-export default function LaunchpadLayout({
+export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const { walletAddress, connecting, connectWallet, disconnectWallet } = useWallet();
-  const {
-    isEligible,
-    solBalance,
-    tokenBalance,
-    loading: checkingEligibility,
-  } = useWalletEligibility(walletAddress);
-  const pathname = usePathname();
-  const isProjectCreationPage = pathname === "/launchpad/project/new";
+  const { walletAddress, connecting, connectWallet, disconnectWallet } = useWallet()
+  const { isEligible, loading: checkingEligibility } = useWalletEligibility(walletAddress)
+  const [isNavVisible, setIsNavVisible] = useState(true)
 
-  const handleSubmitClick = async () => {
-    if (!walletAddress) {
-      try {
-        await connectWallet();
-      } catch (error) {
-        console.error("Failed to connect wallet:", error);
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 400) {
+        setIsNavVisible(false)
+      } else {
+        setIsNavVisible(true)
       }
-    } else if (!isEligible) {
-      alert(
-        `Insufficient balance. You need: ${
-          CONSTANTS.MIN_TOKEN_BALANCE
-        } tokens (Current: ${tokenBalance?.toFixed(2) || 0})`
-      );
-    } else {
-      setIsModalOpen(true);
     }
-  };
 
-  const handleWalletClick = async () => {
-    if (walletAddress) {
-      await disconnectWallet();
-    } else {
-      await connectWallet();
+    window.addEventListener("scroll", handleScroll)
+    return () => {
+      window.removeEventListener("scroll", handleScroll)
     }
-  };
+  }, [])
+
+  const getWalletDisplay = () => {
+    if (!walletAddress) return ""
+    return `${walletAddress.slice(0, 4)}...${walletAddress.slice(-4)}`
+  }
 
   return (
-    <div className={`${jura.className} min-h-screen bg-gradient-to-b from-[#131B2A] to-[#2B3038] text-white`}>
-      {/* Stats Bar */}
-      <div className="border-b border-gray-800 p-4">
-        <div className="container mx-auto">
-          <div className="flex flex-col md:flex-row md:justify-between md:items-center space-y-4 md:space-y-0">
-            <div className="flex-col items-center">
-              <div className="items-center gap-4 flex-col">
-                <img
-                  src="/logoweb.svg"
-                  alt="Logo"
-                  className="h-10 md:h-14 w-auto"
-                />
+    <div className={`${jura.className} bg-black text-white min-h-screen flex flex-col relative`}>
+      <motion.div
+        className="absolute inset-0 z-0"
+        initial={{ opacity: 0 }}
+        animate={{ 
+          opacity: 0.15,
+          transition: { duration: 2 }
+        }}
+        style={{
+          background: 'radial-gradient(circle at 50% 50%, rgba(0, 255, 255, 0.1) 0%, transparent 50%)',
+          filter: 'blur(100px)'
+        }}
+      />
+      <nav className={`sticky top-0 z-50 backdrop-blur-sm bg-black/50 border-b border-white/10 ${isNavVisible ? 'block' : 'hidden'}`}>
+        <div className="container mx-auto px-4">
+          <div className="flex h-16 items-center justify-between">
+            <a
+              href="/launchpad"
+              className="text-xl md:text-2xl font-black tracking-wider text-white [text-shadow:_0_0_22px_rgb(255_255_255_/_80%),_0_0_60px_rgb(255_255_255/_100%)]"
+            >
+              PHY/ACC LAUNCHPAD
+            </a>
+            <div className="flex items-center gap-2 md:gap-4">
+              <div className="hidden md:flex items-center space-x-8">
+                <div>
+                  <span className="text-lg font-medium">150 SOL</span>
+                  <span className="text-xs text-zinc-400 block">Total raised</span>
+                </div>
+                <div>
+                  <span className="text-lg font-medium">0</span>
+                  <span className="text-xs text-zinc-400 block">Projects submitted</span>
+                </div>
               </div>
-              <div className="gap-4">
-                <p
-                  className="text-gray-400 text-sm md:text-base"
-                  style={{ paddingLeft: "5px" }}
-                >
-                  Discover or Build the Next AI Revolution.
-                </p>
-              </div>
-            </div>
-            <div className="flex flex-col md:flex-row gap-4 md:gap-8 items-start md:items-center">
-              <div className="grid grid-cols-2 md:flex gap-4">
-                <Pill
-                  label="Total raised"
-                  value="150 SOL"
-                />
-                <Pill label="Projects submitted" value="0" />
-              </div>
-              {!isProjectCreationPage && (
-                <TopBarButton
+              {walletAddress ? (
+                <div className="flex items-center gap-2 md:gap-4">
+                  <Button
+                    onClick={disconnectWallet}
+                    variant="ghost"
+                    className="text-white hover:text-white/80 text-xs md:text-sm"
+                  >
+                    {getWalletDisplay()}
+                  </Button>
+                  <SubmitProjectButton
+                    walletAddress={walletAddress}
+                    isEligible={isEligible}
+                    checkingEligibility={checkingEligibility}
+                  />
+                </div>
+              ) : (
+                <ConnectWalletButton
                   walletAddress={walletAddress}
                   connecting={connecting}
-                  isEligible={isEligible}
-                  checkingEligibility={checkingEligibility}
-                  solBalance={solBalance || 0}
-                  tokenBalance={tokenBalance || 0}
-                  onWalletClick={handleWalletClick}
-                  onSubmitClick={handleSubmitClick}
+                  onConnect={connectWallet}
+                  onDisconnect={disconnectWallet}
                 />
               )}
             </div>
           </div>
         </div>
-      </div>
-
-      {children}
+      </nav>
+      <main className="flex-grow relative z-10">{children}</main>
     </div>
-  );
-} 
+  )
+}
+

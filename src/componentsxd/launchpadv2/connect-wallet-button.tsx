@@ -3,6 +3,7 @@
 import Image from "next/image"
 import phantomLogo from "../../../public/phantom.jpeg"
 import { Button } from "@/components/ui/button"
+import { Wallet } from "lucide-react"
 
 interface ConnectWalletButtonProps {
   walletAddress: string | null
@@ -19,15 +20,9 @@ export function ConnectWalletButton({
     <Button
       onClick={onConnect}
       disabled={connecting}
-      className="px-2 md:px-4 py-1.5 md:py-2 text-xs md:text-sm bg-gray-800 hover:bg-gray-700 text-white flex items-center gap-2"
+      className="bg-cyan-600 hover:bg-cyan-700 text-white flex items-center gap-2"
     >
-      <Image 
-        src={phantomLogo} 
-        alt="Phantom Wallet" 
-        width={16} 
-        height={16}
-        className="rounded-full"
-      />
+      <Wallet className="w-4 h-4" />
       <span>
         {connecting ? "Connecting..." : "Connect Wallet"}
       </span>
