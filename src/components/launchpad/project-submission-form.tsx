@@ -8,8 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { projectsService } from "@/app/lib/supabase";
 import { storageService } from "@/app/lib/supabase";
-import { platformWalletsService } from "@/app/lib/supabase/services/platformWallets";
-import { getSupabaseClient } from "@/app/lib/supabase/client";
+import { supabase } from "@/app/lib/supabase/client";
+import { useWalletAuth } from "@/app/lib/hooks/useWalletAuth";
 
 interface ProjectSubmissionFormProps {
   walletAddress: string | null;
@@ -48,6 +48,7 @@ const ProjectSubmissionForm = ({
   isEligible,
   onSubmitSuccess,
 }: ProjectSubmissionFormProps) => {
+  const { isAuthenticated } = useWalletAuth();
   const [currentStep, setCurrentStep] = useState(0);
   const [basicInfo, setBasicInfo] = useState<BasicInfo>({
     title: "",
@@ -383,25 +384,21 @@ const ProjectSubmissionForm = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!walletAddress) {
-      console.error("Wallet not connected");
+    if (!walletAddress || !isAuthenticated) {
+      console.error("Wallet not connected or not authenticated");
       return;
     }
 
     try {
       console.log("Starting project submission...");
 
-      // Get authenticated Supabase client
-      const authenticatedClient = await getSupabaseClient(walletAddress);
-
-      // Use the authenticated client for your operations
-      const { data: availableWallet, error: walletError } =
-        await authenticatedClient
-          .from("platform_wallets")
-          .select("*")
-          .eq("is_assigned", false)
-          .limit(1)
-          .single();
+      // Use the authenticated Supabase client directly
+      const { data: availableWallet, error: walletError } = await supabase
+        .from("platform_wallets")
+        .select("*")
+        .eq("is_assigned", false)
+        .limit(1)
+        .single();
 
       if (walletError || !availableWallet) {
         throw new Error("No available platform wallets");
@@ -420,7 +417,7 @@ const ProjectSubmissionForm = ({
         title: basicInfo.title,
         description: basicInfo.description,
         image_url: projectImageUrl,
-        creator_wallet: walletAddress!,
+        creator_wallet: walletAddress,
         funding_goal: parseFloat(basicInfo.fundingGoal),
         wallet_address: availableWallet.public_key,
       });

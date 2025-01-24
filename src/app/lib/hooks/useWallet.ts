@@ -11,6 +11,7 @@ interface PhantomProvider {
   off: (event: PhantomEvent, callback: (args: any) => void) => void;
   isPhantom: boolean;
   publicKey: { toString: () => string };
+  signMessage: (message: Uint8Array, encoding?: string) => Promise<Uint8Array>;
 }
 
 const getProvider = (): PhantomProvider | undefined => {

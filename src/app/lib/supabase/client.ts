@@ -3,12 +3,13 @@ import { createClient } from "@supabase/supabase-js";
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-// Create a default client for public access
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Create a single supabase client for interacting with your database
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true,
+  },
+});
 
-export const getSupabaseClient = (walletAddress?: string) => {
-  return supabase;
-};
-
-// Export the default client for public access
-export { supabase };
+// You can remove the getSupabaseClient function since we'll use the auth context
