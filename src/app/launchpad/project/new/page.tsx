@@ -4,7 +4,7 @@ import { useWallet } from "@/app/lib/hooks/useWallet";
 import { useWalletEligibility } from "@/app/lib/hooks/useWalletEligibility";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import ProjectSubmissionForm from "@/components/launchpad/project-submission-form"; 
+import ProjectSubmissionForm from "@/components/launchpad/project-submission-form";
 
 export default function NewProjectPage() {
   const router = useRouter();
@@ -12,7 +12,8 @@ export default function NewProjectPage() {
   const { isEligible } = useWalletEligibility(walletAddress);
 
   const handleSubmitSuccess = () => {
-    router.push('/launchpadv2');
+    console.log("Project submitted successfully, redirecting...");
+    router.push("/launchpad");
   };
 
   return (
@@ -33,7 +34,10 @@ export default function NewProjectPage() {
               onSubmitSuccess={handleSubmitSuccess}
             />
           ) : (
-            <p className="text-red-500">You need to connect a wallet and have sufficient coins to submit a project.</p>
+            <p className="text-red-500">
+              You need to connect a wallet and have sufficient coins to submit a
+              project.
+            </p>
           )}
         </div>
       </div>

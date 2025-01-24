@@ -2,17 +2,14 @@ import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { projectsService } from "@/app/lib/supabase";
+import { storageService } from "@/app/lib/supabase";
+import { platformWalletsService } from "@/app/lib/supabase/services/platformWallets";
+import { getSupabaseClient } from "@/app/lib/supabase/client";
 
 interface ProjectSubmissionFormProps {
   walletAddress: string | null;
@@ -38,17 +35,26 @@ interface TokenCreationData {
   tokenAllocationPercentage: number;
 }
 
+interface BasicInfo {
+  title: string;
+  description: string;
+  fundingGoal: string;
+  image: File | null;
+  targetMarket: string;
+}
+
 const ProjectSubmissionForm = ({
   walletAddress,
   isEligible,
   onSubmitSuccess,
 }: ProjectSubmissionFormProps) => {
   const [currentStep, setCurrentStep] = useState(0);
-  const [basicInfo, setBasicInfo] = useState({
+  const [basicInfo, setBasicInfo] = useState<BasicInfo>({
     title: "",
     description: "",
     fundingGoal: "",
-    image: null as File | null,
+    image: null,
+    targetMarket: "",
   });
 
   const [milestones, setMilestones] = useState<Milestone[]>([]);
@@ -80,6 +86,29 @@ const ProjectSubmissionForm = ({
             />
           </div>
           <div>
+            <Label>Funding Goal (SOL)</Label>
+            <Input
+              type="number"
+              value={basicInfo.fundingGoal}
+              onChange={(e) =>
+                setBasicInfo((prev) => ({
+                  ...prev,
+                  fundingGoal: e.target.value,
+                }))
+              }
+              required
+            />
+          </div>
+          <div>
+            <Label>Project Image</Label>
+            <Input
+              type="file"
+              accept="image/*"
+              onChange={(e) => handleImageChange(e, "project")}
+              required
+            />
+          </div>
+          <div>
             <Label>Website</Label>
             <Input placeholder="https://" />
           </div>
@@ -105,7 +134,16 @@ const ProjectSubmissionForm = ({
           </div>
           <div>
             <Label>Target Market</Label>
-            <Input placeholder="Who is this project for?" />
+            <Input
+              placeholder="Who is this project for?"
+              value={basicInfo.targetMarket}
+              onChange={(e) =>
+                setBasicInfo((prev) => ({
+                  ...prev,
+                  targetMarket: e.target.value,
+                }))
+              }
+            />
           </div>
         </div>
       ),
@@ -284,8 +322,8 @@ const ProjectSubmissionForm = ({
             </RadioGroup>
           </div>
           <div>
-            <Label>LinkedIn Profiles</Label>
-            <Textarea placeholder="Enter team LinkedIn profiles..." />
+            <Label>Team description</Label>
+            <Textarea placeholder="Enter team description..." />
           </div>
         </div>
       ),
@@ -298,7 +336,7 @@ const ProjectSubmissionForm = ({
             Please review your submission carefully before submitting.
           </p>
           <Button
-            onClick={onSubmitSuccess}
+            onClick={handleSubmit}
             className="w-full"
             disabled={!isEligible}
           >
@@ -344,8 +382,103 @@ const ProjectSubmissionForm = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Implement submission logic here
-    // Include token creation if includeToken is true
+
+    if (!walletAddress) {
+      console.error("Wallet not connected");
+      return;
+    }
+
+    try {
+      console.log("Starting project submission...");
+
+      // Get authenticated Supabase client
+      const authenticatedClient = await getSupabaseClient(walletAddress);
+
+      // Use the authenticated client for your operations
+      const { data: availableWallet, error: walletError } =
+        await authenticatedClient
+          .from("platform_wallets")
+          .select("*")
+          .eq("is_assigned", false)
+          .limit(1)
+          .single();
+
+      if (walletError || !availableWallet) {
+        throw new Error("No available platform wallets");
+      }
+
+      // Upload project image if exists
+      let projectImageUrl = "";
+      if (basicInfo.image) {
+        console.log("Uploading project image...");
+        projectImageUrl = await storageService.uploadImage(basicInfo.image);
+        console.log("Project image uploaded:", projectImageUrl);
+      }
+
+      // Create the project with the platform wallet
+      const project = await projectsService.createProject({
+        title: basicInfo.title,
+        description: basicInfo.description,
+        image_url: projectImageUrl,
+        creator_wallet: walletAddress!,
+        funding_goal: parseFloat(basicInfo.fundingGoal),
+        wallet_address: availableWallet.public_key,
+      });
+
+      console.log("Project created:", project);
+
+      // Handle token creation if needed
+      if (includeToken && project) {
+        console.log("Token creation step starting...");
+        let tokenImageUrl = "";
+        if (tokenInfo.image) {
+          console.log("Uploading token image...");
+          tokenImageUrl = await storageService.uploadTokenImage(
+            tokenInfo.image
+          );
+          console.log("Token image uploaded:", tokenImageUrl);
+        }
+
+        const tokenData = {
+          project_id: project.id,
+          name: tokenInfo.name,
+          symbol: tokenInfo.symbol,
+          description: tokenInfo.description,
+          twitter_url: tokenInfo.twitter || undefined,
+          telegram_url: tokenInfo.telegram || undefined,
+          website_url: tokenInfo.website || undefined,
+          image_url: tokenImageUrl,
+          allocation_percentage: tokenInfo.tokenAllocationPercentage,
+        };
+
+        console.log("Prepared token data:", tokenData);
+        const createdToken = await projectsService.createProjectToken(
+          tokenData
+        );
+        console.log("Token created successfully:", createdToken);
+      }
+
+      // Create milestones if any
+      if (milestones.length > 0) {
+        console.log("Creating milestones...");
+        for (const milestone of milestones) {
+          await projectsService.createProjectMilestone({
+            project_id: project.id,
+            title: milestone.title,
+            description: milestone.description,
+            target_date: milestone.target_date,
+            order_index: milestone.order_index,
+          });
+        }
+        console.log("Milestones created");
+      }
+
+      console.log("Project submission completed successfully");
+      onSubmitSuccess();
+    } catch (error) {
+      console.error("Failed to submit project:", error);
+      throw error;
+    }
   };
 
   return (
