@@ -3,16 +3,15 @@
 import { useWallet } from "@/app/lib/hooks/useWallet";
 import { useWalletEligibility } from "@/app/lib/hooks/useWalletEligibility";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 import ProjectSubmissionForm from "@/components/launchpad/project-submission-form";
+import { Loader2 } from "lucide-react";
 
 export default function NewProjectPage() {
   const router = useRouter();
   const { walletAddress } = useWallet();
-  const { isEligible } = useWalletEligibility(walletAddress);
+  const { isEligible, loading } = useWalletEligibility(walletAddress);
 
   const handleSubmitSuccess = () => {
-    console.log("Project submitted successfully, redirecting...");
     router.push("/launchpad");
   };
 
@@ -27,7 +26,12 @@ export default function NewProjectPage() {
         </a>
         <div className="max-w-2xl mx-auto">
           <h1 className="text-2xl font-bold mb-6">Submit Your Project</h1>
-          {isEligible ? (
+          {loading ? (
+            <div className="flex items-center justify-center p-8 text-gray-400">
+              <Loader2 className="h-8 w-8 animate-spin mr-2" />
+              <span>Checking wallet eligibility...</span>
+            </div>
+          ) : isEligible ? (
             <ProjectSubmissionForm
               walletAddress={walletAddress}
               isEligible={isEligible}

@@ -14,7 +14,7 @@ export const useWalletEligibility = (walletAddress: string | null) => {
     isEligible: false,
     solBalance: null,
     tokenBalance: null,
-    loading: false,
+    loading: true,
     error: null,
   });
 
@@ -26,6 +26,7 @@ export const useWalletEligibility = (walletAddress: string | null) => {
         solBalance: null,
         tokenBalance: null,
         error: null,
+        loading: false,
       }));
       return;
     }
@@ -54,7 +55,12 @@ export const useWalletEligibility = (walletAddress: string | null) => {
   };
 
   useEffect(() => {
-    checkEligibility();
+    setState(prev => ({ ...prev, loading: true }));
+    const timer = setTimeout(() => {
+      checkEligibility();
+    }, 100);
+
+    return () => clearTimeout(timer);
   }, [walletAddress]);
 
   return {
