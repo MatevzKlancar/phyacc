@@ -4,7 +4,6 @@ import { solanaBalance } from "../solana/balance";
 interface EligibilityState {
   isEligible: boolean;
   solBalance: number | null;
-  tokenBalance: number | null;
   loading: boolean;
   error: string | null;
 }
@@ -13,7 +12,6 @@ export const useWalletEligibility = (walletAddress: string | null) => {
   const [state, setState] = useState<EligibilityState>({
     isEligible: false,
     solBalance: null,
-    tokenBalance: null,
     loading: true,
     error: null,
   });
@@ -24,7 +22,6 @@ export const useWalletEligibility = (walletAddress: string | null) => {
         ...prev,
         isEligible: false,
         solBalance: null,
-        tokenBalance: null,
         error: null,
         loading: false,
       }));
@@ -34,14 +31,14 @@ export const useWalletEligibility = (walletAddress: string | null) => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
 
     try {
-      const { isEligible, solBalance, tokenBalance } =
-        await solanaBalance.checkEligibility(walletAddress);
+      const { isEligible, solBalance } = await solanaBalance.checkEligibility(
+        walletAddress
+      );
 
       setState((prev) => ({
         ...prev,
         isEligible,
         solBalance,
-        tokenBalance: tokenBalance ?? null,
         loading: false,
       }));
     } catch (err) {
@@ -55,7 +52,7 @@ export const useWalletEligibility = (walletAddress: string | null) => {
   };
 
   useEffect(() => {
-    setState(prev => ({ ...prev, loading: true }));
+    setState((prev) => ({ ...prev, loading: true }));
     const timer = setTimeout(() => {
       checkEligibility();
     }, 100);

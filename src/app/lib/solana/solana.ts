@@ -1,7 +1,7 @@
 import { Connection, PublicKey, clusterApiUrl } from "@solana/web3.js";
 
-// Initialize connection to Solana network (using devnet for development)
-export const connection = new Connection(clusterApiUrl("devnet"));
+// Initialize connection to Solana network (using mainnet-beta for production)
+export const connection = new Connection(clusterApiUrl("mainnet-beta"));
 
 // Helper functions for Solana interactions
 export const solanaService = {

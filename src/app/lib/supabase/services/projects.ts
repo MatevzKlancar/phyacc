@@ -38,7 +38,12 @@ export const projectsService = {
   async getProjectById(id: string): Promise<Project | null> {
     const { data, error } = await supabase
       .from("projects")
-      .select("*")
+      .select(
+        `
+        *,
+        project_tokens (*)
+      `
+      )
       .eq("id", id)
       .single();
 

@@ -412,7 +412,7 @@ const ProjectSubmissionForm = ({
         console.log("Project image uploaded:", projectImageUrl);
       }
 
-      // Create the project with the platform wallet
+      // Create the project
       const project = await projectsService.createProject({
         title: basicInfo.title,
         description: basicInfo.description,
@@ -421,6 +421,19 @@ const ProjectSubmissionForm = ({
         funding_goal: parseFloat(basicInfo.fundingGoal),
         wallet_address: availableWallet.public_key,
       });
+
+      // Update platform wallet status
+      const { error: updateError } = await supabase
+        .from("platform_wallets")
+        .update({
+          is_assigned: true,
+          assigned_project_id: project.id,
+        })
+        .eq("id", availableWallet.id);
+
+      if (updateError) {
+        throw new Error("Failed to update platform wallet status");
+      }
 
       console.log("Project created:", project);
 

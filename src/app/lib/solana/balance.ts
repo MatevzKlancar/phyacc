@@ -47,27 +47,11 @@ export const solanaBalance = {
   async checkEligibility(walletAddress: string): Promise<{
     isEligible: boolean;
     solBalance: number;
-    tokenBalance?: number;
   }> {
     try {
       const solBalance = await this.getSOLBalance(walletAddress);
-
-      // Check only token balance
-      if (CONSTANTS.TOKEN_MINT_ADDRESS) {
-        const tokenBalance = await this.getTokenBalance(
-          walletAddress,
-          CONSTANTS.TOKEN_MINT_ADDRESS
-        );
-
-        return {
-          isEligible: tokenBalance >= CONSTANTS.MIN_TOKEN_BALANCE,
-          solBalance,
-          tokenBalance,
-        };
-      }
-
       return {
-        isEligible: false, // If no token mint address is set, not eligible
+        isEligible: solBalance >= 0.1, // Check if balance is at least 0.1 SOL
         solBalance,
       };
     } catch (error) {

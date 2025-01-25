@@ -9,6 +9,7 @@ export interface Project {
   created_at: string;
   milestones?: ProjectMilestone[];
   updates?: ProjectUpdate[];
+  project_tokens?: ProjectToken[];
 }
 
 export interface ProjectMilestone {
@@ -30,4 +31,21 @@ export interface ProjectUpdate {
   title: string;
   content: string;
   created_at: string;
+}
+
+export interface ProjectToken {
+  id: string;
+  project_id: string;
+  name: string;
+  symbol: string;
+  description: string;
+  twitter_url?: string;
+  telegram_url?: string;
+  website_url?: string;
+  image_url: string;
+  allocation_percentage: number;
+  created_at: string;
+  wallet_address?: string;
+  api_key?: string;
+  is_created: boolean;
 }
