@@ -113,6 +113,27 @@ export default function ProjectDetailPage() {
     }
   };
 
+  const handleCreateToken = async () => {
+    if (
+      !project ||
+      !isCreator ||
+      !project.project_tokens?.[0] ||
+      !project.project_tokens[0].is_created
+    )
+      return;
+
+    setIsProcessing(true);
+    try {
+      await tokenService.createTokenOnChain(project.project_tokens[0].id);
+      alert("Token created on-chain successfully!");
+    } catch (error) {
+      console.error("Error creating token on-chain:", error);
+      alert("Failed to create token on-chain. Please try again.");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   if (loading)
     return <div className="container mx-auto px-4 py-8">Loading...</div>;
   if (!project)
@@ -249,10 +270,9 @@ export default function ProjectDetailPage() {
         </Card>
 
         {/* Only show to project creator and if token is configured but not created yet */}
-        {isCreator &&
-          project?.project_tokens?.[0] &&
-          !project.project_tokens[0].is_created && (
-            <div className="mt-6">
+        {isCreator && project?.project_tokens?.[0] && (
+          <div className="mt-6 space-y-2">
+            {!project.project_tokens[0].is_created && (
               <Button
                 onClick={handleSimulateGoalReached}
                 disabled={isProcessing}
@@ -260,10 +280,21 @@ export default function ProjectDetailPage() {
               >
                 {isProcessing
                   ? "Processing..."
-                  : "Simulate Goal Reached & Create Token"}
+                  : "Simulate Goal Reached & Init Token"}
               </Button>
-            </div>
-          )}
+            )}
+
+            {project.project_tokens[0].is_created && (
+              <Button
+                onClick={handleCreateToken}
+                disabled={isProcessing}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white"
+              >
+                {isProcessing ? "Processing..." : "Create Token On-Chain"}
+              </Button>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Enhanced Sticky Navigation */}
