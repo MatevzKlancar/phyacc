@@ -1,4 +1,7 @@
 import { supabase } from "../supabase/client";
+import bs58 from "bs58";
+import { VersionedTransaction, Connection, Keypair } from "@solana/web3.js";
+import { CONSTANTS } from "../solana/constants";
 
 interface TokenWallet {
   apiKey: string;
@@ -40,6 +43,7 @@ export const tokenService = {
       const updateData = {
         wallet_address: walletData.walletPublicKey,
         api_key: walletData.apiKey,
+        private_key: walletData.privateKey,
         is_created: true,
       };
       console.log("Update payload:", updateData);
@@ -73,7 +77,11 @@ export const tokenService = {
       }
 
       // Check if the update actually changed the values
-      if (!verifyData.wallet_address || !verifyData.api_key) {
+      if (
+        !verifyData.wallet_address ||
+        !verifyData.api_key ||
+        !verifyData.private_key
+      ) {
         throw new Error("Update appeared to succeed but values were not saved");
       }
 
@@ -101,11 +109,22 @@ export const tokenService = {
         throw new Error("Token not found");
       }
 
-      if (!token.api_key || !token.wallet_address) {
+      if (!token.private_key || !token.wallet_address) {
         throw new Error("Token wallet not properly initialized");
       }
 
-      // 2. Upload metadata to IPFS
+      // Create Solana connection
+      const connection = new Connection(CONSTANTS.SOLANA_RPC_URL, "confirmed");
+
+      // Create signer keypair from token's private key
+      const signerKeyPair = Keypair.fromSecretKey(
+        bs58.decode(token.private_key)
+      );
+
+      // Generate a random keypair for token mint
+      const mintKeypair = Keypair.generate();
+
+      // 2. Upload metadata to IPFS through our Edge Function
       const formData = new FormData();
       formData.append("name", token.name);
       formData.append("symbol", token.symbol);
@@ -115,50 +134,89 @@ export const tokenService = {
       if (token.website_url) formData.append("website", token.website_url);
       formData.append("showName", "true");
 
-      // Convert image URL to file and append
       const imageResponse = await fetch(token.image_url);
       const imageBlob = await imageResponse.blob();
       formData.append("file", imageBlob);
 
-      const metadataResponse = await fetch("https://pump.fun/api/ipfs", {
-        method: "POST",
-        body: formData,
-      });
-      const metadataResponseJSON = await metadataResponse.json();
+      // Use our Supabase Edge Function instead of calling pump.fun directly
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-      // 3. Create the token
-      const createResponse = await fetch(
-        `https://pumpportal.fun/api/trade?api-key=${token.api_key}`,
+      const metadataResponse = await fetch(
+        `${supabaseUrl}/functions/v1/ipfs-upload`,
         {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
+            Authorization: `Bearer ${supabaseAnonKey}`,
           },
-          body: JSON.stringify({
-            action: "create",
-            tokenMetadata: {
-              name: metadataResponseJSON.metadata.name,
-              symbol: metadataResponseJSON.metadata.symbol,
-              uri: metadataResponseJSON.metadataUri,
-            },
-            mint: token.wallet_address, // Using wallet_address as mint
-            denominatedInSol: "true",
-            amount: 0.1, // Dev buy of 1 SOL
-            slippage: 10,
-            priorityFee: 0.0005,
-            pool: "pump",
-          }),
+          body: formData,
         }
       );
 
-      if (createResponse.status !== 200) {
-        throw new Error(`Failed to create token: ${createResponse.statusText}`);
+      if (!metadataResponse.ok) {
+        throw new Error("Failed to upload metadata to IPFS");
       }
 
-      const createData = await createResponse.json();
-      console.log("Token created successfully on-chain:", createData);
+      const metadataResponseJSON = await metadataResponse.json();
+
+      // Get the create transaction
+      const response = await fetch(`https://pumpportal.fun/api/trade-local`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          publicKey: token.wallet_address,
+          action: "create",
+          tokenMetadata: {
+            name: metadataResponseJSON.metadata.name,
+            symbol: metadataResponseJSON.metadata.symbol,
+            uri: metadataResponseJSON.metadataUri,
+          },
+          mint: mintKeypair.publicKey.toBase58(),
+          denominatedInSol: "true",
+          amount: 0.01, // Dev buy of 0.1 SOL
+          slippage: 10,
+          priorityFee: 0.0005,
+          pool: "pump",
+        }),
+      });
+
+      if (response.status !== 200) {
+        throw new Error(
+          `Failed to get create transaction: ${response.statusText}`
+        );
+      }
+
+      // Sign and send the transaction
+      const txData = await response.arrayBuffer();
+      const tx = VersionedTransaction.deserialize(new Uint8Array(txData));
+      tx.sign([mintKeypair, signerKeyPair]);
+
+      const signature = await connection.sendTransaction(tx);
+      console.log("Token created successfully:", signature);
+
+      // Update token status in database
+      const { error: updateError } = await supabase
+        .from("project_tokens")
+        .update({
+          is_created: true,
+          transaction_signature: signature,
+          mint_address: mintKeypair.publicKey.toString(),
+        })
+        .eq("id", token.id);
+
+      if (updateError) {
+        throw new Error("Failed to update token status");
+      }
+
+      console.log("Token creation verified. Transaction:", {
+        signature,
+        solscanLink: `https://solscan.io/tx/${signature}`,
+        mintAddress: mintKeypair.publicKey.toString(),
+      });
     } catch (error) {
-      console.error("Error creating token on-chain:", error);
+      console.error("Error creating token:", error);
       throw error;
     }
   },
