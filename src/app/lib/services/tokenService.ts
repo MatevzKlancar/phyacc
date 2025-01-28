@@ -175,7 +175,7 @@ export const tokenService = {
           },
           mint: mintKeypair.publicKey.toBase58(),
           denominatedInSol: "true",
-          amount: 0.01, // Dev buy of 0.1 SOL
+          amount: 0.1, // Dev buy of 0.1 SOL
           slippage: 10,
           priorityFee: 0.0005,
           pool: "pump",
@@ -196,27 +196,42 @@ export const tokenService = {
       const signature = await connection.sendTransaction(tx);
       console.log("Token created successfully:", signature);
 
-      // Update token status in database
-      const { error: updateError } = await supabase
+      // More explicit database update
+      const updateData = {
+        is_created: true,
+        transaction_signature: signature,
+        mint_address: mintKeypair.publicKey.toString(),
+      };
+      console.log("Attempting database update with:", updateData);
+
+      const { data: updateResult, error: updateError } = await supabase
         .from("project_tokens")
-        .update({
-          is_created: true,
-          transaction_signature: signature,
-          mint_address: mintKeypair.publicKey.toString(),
-        })
-        .eq("id", token.id);
+        .update(updateData)
+        .eq("id", tokenId) // Make sure we're using tokenId here
+        .select()
+        .single();
 
       if (updateError) {
-        throw new Error("Failed to update token status");
+        console.error("Database update error:", updateError);
+        // Log more details about the failed update
+        console.log("Failed update details:", {
+          tokenId,
+          updateData,
+          error: updateError,
+        });
+        throw new Error(
+          `Failed to update token status: ${updateError.message}`
+        );
       }
 
+      console.log("Database update successful:", updateResult);
       console.log("Token creation verified. Transaction:", {
         signature,
         solscanLink: `https://solscan.io/tx/${signature}`,
         mintAddress: mintKeypair.publicKey.toString(),
       });
     } catch (error) {
-      console.error("Error creating token:", error);
+      console.error("Error in createTokenOnChain:", error);
       throw error;
     }
   },

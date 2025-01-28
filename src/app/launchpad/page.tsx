@@ -28,48 +28,6 @@ interface ProjectWithFunding extends Project {
   fundingPercentage?: number;
 }
 
-const mockProjects = [
-  {
-    id: "1",
-    title: "Project Alpha",
-    description: "A revolutionary project that aims to change the world.",
-    image_url:
-      "https://t3.ftcdn.net/jpg/05/59/87/12/360_F_559871209_pbXlOVArUal3mk6Ce60JuP13kmuIRCth.jpg",
-    wallet_address: "ABC1234567890DEF1234567890ABC1234567890",
-    funding_goal: 1000,
-    balance: 500,
-    fundingPercentage: 50,
-    creator_wallet: "CREATOR_WALLET_1",
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: "2",
-    title: "Project Beta",
-    description: "I will add AI agent to arduino and he will pass the butter",
-    image_url:
-      "https://t3.ftcdn.net/jpg/05/59/87/12/360_F_559871209_pbXlOVArUal3mk6Ce60JuP13kmuIRCth.jpg",
-    wallet_address: "DEF1234567890ABC1234567890DEF1234567890",
-    funding_goal: 2000,
-    balance: 1500,
-    fundingPercentage: 75,
-    creator_wallet: "CREATOR_WALLET_2",
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: "3",
-    title: "Project Gamma",
-    description: "A community-driven initiative for sustainable energy.",
-    image_url:
-      "https://t3.ftcdn.net/jpg/05/59/87/12/360_F_559871209_pbXlOVArUal3mk6Ce60JuP13kmuIRCth.jpg",
-    wallet_address: "GHI1234567890ABC1234567890GHI1234567890",
-    funding_goal: 3000,
-    balance: 2500,
-    fundingPercentage: 83.33,
-    creator_wallet: "CREATOR_WALLET_3",
-    created_at: new Date().toISOString(),
-  },
-];
-
 export default function Home() {
   const [projects, setProjects] = useState<ProjectWithFunding[]>([]);
   const [loading, setLoading] = useState(true);
@@ -104,7 +62,7 @@ export default function Home() {
       });
 
       // Combine real projects with mock projects
-      setProjects([...projectsWithFunding, ...mockProjects]);
+      setProjects([...projectsWithFunding]);
     } catch (error) {
       console.error("Error loading projects:", error);
     } finally {
